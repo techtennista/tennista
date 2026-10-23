@@ -6,9 +6,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const bucket = process.env.NEON_STORAGE_BUCKET ?? "tennista-media";
 
 function storageConfig() {
-  const endpoint = process.env.NEON_STORAGE_ENDPOINT ?? process.env.AWS_ENDPOINT_URL_S3;
-  const accessKeyId = process.env.NEON_STORAGE_ACCESS_KEY_ID ?? process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.NEON_STORAGE_SECRET_ACCESS_KEY ?? process.env.AWS_SECRET_ACCESS_KEY;
+  const endpoint = process.env.NEON_STORAGE_ENDPOINT;
+  const accessKeyId = process.env.NEON_STORAGE_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.NEON_STORAGE_SECRET_ACCESS_KEY;
   if (!endpoint || !accessKeyId || !secretAccessKey) {
     throw new Error("Neon Storage credentials are not configured.");
   }
@@ -19,7 +19,7 @@ function client() {
   const config = storageConfig();
   return new S3Client({
     endpoint: config.endpoint,
-    region: process.env.NEON_STORAGE_REGION ?? process.env.AWS_REGION ?? "us-east-2",
+    region: process.env.NEON_STORAGE_REGION ?? "us-east-2",
     forcePathStyle: true,
     credentials: {
       accessKeyId: config.accessKeyId,
