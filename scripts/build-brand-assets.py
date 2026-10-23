@@ -10,6 +10,7 @@ Re-run whenever the logo or the brand palette changes.
 
 from pathlib import Path
 
+
 from PIL import Image, ImageDraw, ImageFont
 
 BLUE = (0, 60, 148)
