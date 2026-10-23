@@ -9,6 +9,8 @@ type Person = {
   role: string;
   bio?: string;
   photo: string;
+  image?: string;
+  linkedin?: string;
 };
 
 const leaders: Person[] = [
@@ -16,13 +18,9 @@ const leaders: Person[] = [
     name: "Michael Nwoseh",
     role: "Founder, Tennista Foundation",
     photo: "Michael Nwoseh",
+    image: "/team/michael-nwoseh.jpg",
+    linkedin: "https://linkedin.com/in/michael-nwosu-8a5b4279",
     bio: "Michael is a marketing professional and an experienced non-profit leader who believes in the potential of young people and provides the platform for their talents to find expression through the right mix of sports, academic support and life skill training.",
-  },
-  {
-    name: "Tunmise Johnson",
-    role: "Finance & Grant Manager (Volunteer)",
-    photo: "Tunmise Johnson",
-    bio: "Tunmise is a finance, accounting and administration professional with over seven years of experience in profit-oriented and development organizations. He volunteers his time in finance and grant management to help develop young talents.",
   },
 ];
 
@@ -46,17 +44,6 @@ const advisors: Person[] = [
   },
 ];
 
-function LinkedMark() {
-  return (
-    <span
-      aria-hidden
-      className="grid size-7 shrink-0 place-items-center rounded-md bg-blue text-[0.65rem] font-bold text-white"
-    >
-      in
-    </span>
-  );
-}
-
 function PersonCard({
   person,
   open,
@@ -67,7 +54,7 @@ function PersonCard({
   onToggle: () => void;
 }) {
   return (
-    <article className="w-[min(100%,22rem)] shrink-0 snap-start sm:w-[calc((100%-2.5rem)/3)]">
+    <article className="relative w-[min(100%,22rem)] shrink-0 snap-start sm:w-[calc((100%-2.5rem)/3)]">
       <button
         type="button"
         aria-expanded={open}
@@ -75,13 +62,10 @@ function PersonCard({
         className="flex h-full min-h-[28rem] w-full flex-col overflow-hidden rounded-[1.35rem] text-left"
       >
         {open ? (
-          <span className="flex h-full flex-1 flex-col bg-lime px-5 py-6 sm:px-6">
-            <span className="flex items-start justify-between gap-3">
-              <span>
-                <span className="headline block text-[1.15rem] leading-tight text-blue">{person.name}</span>
-                <span className="mt-1 block text-sm text-blue-dark/80">{person.role}</span>
-              </span>
-              <LinkedMark />
+          <span className="flex h-full flex-1 flex-col bg-lime px-5 py-6 pr-14 sm:px-6 sm:pr-16">
+            <span>
+              <span className="headline block text-[1.15rem] leading-tight text-blue">{person.name}</span>
+              <span className="mt-1 block text-sm text-blue-dark/80">{person.role}</span>
             </span>
             {person.bio ? (
               <span className="mt-6 block text-[0.95rem] leading-relaxed text-blue-dark/90">{person.bio}</span>
@@ -89,19 +73,44 @@ function PersonCard({
           </span>
         ) : (
           <>
-            <span aria-hidden className="relative block min-h-64 flex-1 bg-blue-tint">
-              <MediaPlaceholder label={person.photo} className="absolute inset-0 h-full w-full rounded-none" />
+            <span className="relative block min-h-64 flex-1 bg-blue-tint">
+              {person.image ? (
+                <img
+                  src={person.image}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover object-[center_12%]"
+                />
+              ) : (
+                <MediaPlaceholder label={person.photo} className="absolute inset-0 h-full w-full rounded-none" />
+              )}
             </span>
-            <span className="flex items-center justify-between gap-3 bg-lime px-4 py-3">
+            <span className="flex items-center bg-lime px-4 py-3 pr-14">
               <span>
                 <span className="headline block text-[1.05rem] leading-tight text-blue">{person.name}</span>
                 <span className="mt-0.5 block text-xs text-blue-dark/75">{person.role}</span>
               </span>
-              <LinkedMark />
             </span>
           </>
         )}
       </button>
+      {person.linkedin ? (
+        <a
+          href={person.linkedin}
+          target="_blank"
+          rel="noreferrer noopener"
+          aria-label={`${person.name} on LinkedIn`}
+          className="absolute top-4 right-4 z-10 grid size-7 place-items-center rounded-md bg-blue text-[0.65rem] font-bold text-white"
+        >
+          in
+        </a>
+      ) : (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute top-4 right-4 z-10 grid size-7 place-items-center rounded-md bg-blue text-[0.65rem] font-bold text-white"
+        >
+          in
+        </span>
+      )}
     </article>
   );
 }
