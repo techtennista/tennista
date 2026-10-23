@@ -1,3 +1,4 @@
+import { InquiryForm } from "@/components/sections/inquiry-form";
 import { Container } from "@/components/ui/container";
 
 export function PartnerWithUs() {
@@ -50,6 +51,13 @@ export function PartnerWithUs() {
           </a>
         </div>
       </Container>
+      <div className="mt-24">
+        <InquiryForm
+          type="partnership"
+          heading="Partner with Tennista"
+          intro="Share your organisation and how you'd like to work with us. This goes straight to the admin Forms inbox."
+        />
+      </div>
     </section>
   );
 }

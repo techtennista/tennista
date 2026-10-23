@@ -12,7 +12,7 @@ export default function SponsorPage() {
   return (
     <>
       <CareersHero />
-      <CareersForm />
+      <CareersForm type="sponsorship" />
     </>
   );
 }

@@ -18,6 +18,8 @@ const socials = [
 
 export function ContactUs() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   return (
     <section aria-labelledby="contact-heading" className="bg-white pt-12 pb-20 sm:pt-4 sm:pb-24">
@@ -36,12 +38,39 @@ export function ContactUs() {
       <Container>
         <form
           className="mx-auto mt-12 w-full sm:w-[74%]"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            setSent(true);
+            setSubmitting(true);
+            setError("");
+            const form = event.currentTarget;
+            const data = new FormData(form);
+            try {
+              const response = await fetch("/api/submissions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "contact",
+                  name: data.get("name"),
+                  email: data.get("email"),
+                  subject: data.get("subject"),
+                  message: data.get("message"),
+                  company: data.get("company"),
+                  sourcePath: window.location.pathname,
+                }),
+              });
+              const result = (await response.json()) as { message?: string };
+              if (!response.ok) throw new Error(result.message ?? "Please try again.");
+              form.reset();
+              setSent(true);
+            } catch (submissionError) {
+              setError(submissionError instanceof Error ? submissionError.message : "Please try again.");
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
           <div className="space-y-4">
+            <input name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
             <input className={fieldClass} name="name" placeholder="Full Name" aria-label="Full Name" required />
             <input
               className={fieldClass}
@@ -62,10 +91,10 @@ export function ContactUs() {
           </div>
 
           <div className="mt-7 text-center">
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Submitting…" : "Submit"}</Button>
           </div>
           <p className="mt-4 min-h-6 text-center text-sm font-medium text-blue" aria-live="polite">
-            {sent ? "Thank you. Your message has been received." : ""}
+            {error || (sent ? "Thank you. Your message has been received." : "")}
           </p>
         </form>
 

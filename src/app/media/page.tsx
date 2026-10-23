@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import { MediaHub } from "@/components/sections/media-hub";
+import { getPublishedEvents } from "@/lib/public-events";
+import { getPublishedPhotosPage, getPublishedVideos } from "@/lib/public-media";
+import { getPublishedNewsPosts } from "@/lib/public-news";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Media & Events",
@@ -7,6 +12,23 @@ export const metadata: Metadata = {
   alternates: { canonical: "/media" },
 };
 
-export default function MediaPage() {
-  return <MediaHub />;
+export default async function MediaPage() {
+  const [posts, events, photoFeed, videos] = await Promise.all([
+    getPublishedNewsPosts(),
+    getPublishedEvents(),
+    getPublishedPhotosPage(),
+    getPublishedVideos(),
+  ]);
+  return (
+    <MediaHub
+      newsItems={posts.map((post) => ({
+        title: post.title,
+        image: post.cardImage,
+        href: `/media/tennis-news/${post.slug}`,
+      }))}
+      eventItems={events}
+      photoFeed={photoFeed}
+      videoItems={videos}
+    />
+  );
 }

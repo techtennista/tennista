@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { notifyInbox, sendNewsletterWelcome } from "@/lib/notify";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -26,7 +28,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Please enter a valid email address." }, { status: 422 });
   }
 
-  // TODO: forward { email, firstName } to the email provider.
+  await db.query(
+    `
+      INSERT INTO cms_submissions (id, form_type, payload)
+      VALUES ($1, 'newsletter', $2::jsonb)
+    `,
+    [
+      crypto.randomUUID(),
+      JSON.stringify({
+        name: typeof payload.firstName === "string" ? payload.firstName.trim() || null : null,
+        email,
+        sourcePath: "/newsletter",
+        userAgent: request.headers.get("user-agent"),
+      }),
+    ],
+  );
+
+  const firstName = typeof payload.firstName === "string" ? payload.firstName.trim() : "";
+  await Promise.all([
+    notifyInbox({
+      type: "newsletter",
+      name: firstName || null,
+      email,
+      subject: "Newsletter signup",
+    }),
+    sendNewsletterWelcome({ email, firstName }),
+  ]);
 
   return NextResponse.json({ message: "You're on the list. Welcome to the Tennista story." });
 }

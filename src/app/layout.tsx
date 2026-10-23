@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import { JsonLd } from "@/components/seo/json-ld";
-import { SmoothScroll } from "@/components/ui/smooth-scroll";
 import { siteConfig } from "@/config/site";
 import { fontVariables } from "@/lib/fonts";
 import { organizationSchema, websiteSchema } from "@/lib/seo";
@@ -80,12 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={fontVariables}>
       <body className="min-h-dvh antialiased">
         <JsonLd schema={[organizationSchema(), websiteSchema()]} />
-        <SmoothScroll />
-        <SiteHeader />
-        <main id="main" className="pt-[5.25rem]">
-          {children}
-        </main>
-        <SiteFooter />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { NewsArticle, newsPosts } from "@/components/sections/news-article";
+import { NewsArticle } from "@/components/sections/news-article";
+import { getPublishedNewsPosts } from "@/lib/public-news";
+
+export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return newsPosts.map((post) => ({ slug: post.slug }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = newsPosts.find((item) => item.slug === slug);
+  const posts = await getPublishedNewsPosts();
+  const post = posts.find((item) => item.slug === slug);
 
   if (!post) return {};
 
@@ -25,9 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function NewsPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = newsPosts.find((item) => item.slug === slug);
+  const posts = await getPublishedNewsPosts();
+  const post = posts.find((item) => item.slug === slug);
 
   if (!post) notFound();
 
-  return <NewsArticle post={post} />;
+  return <NewsArticle post={post} posts={posts} />;
 }

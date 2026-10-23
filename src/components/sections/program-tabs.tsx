@@ -1,11 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SdgGoals } from "@/components/sections/sdg-goals";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const tabs = ["Tennis", "Educational Scholarships", "Life Skills Training"] as const;
+type ProgramTab = (typeof tabs)[number];
+
+const tabByHash: Record<string, ProgramTab> = {
+  tennis: "Tennis",
+  "educational-scholarships": "Educational Scholarships",
+  "life-skills-training": "Life Skills Training",
+};
+
+const hashByTab: Record<ProgramTab, string> = {
+  Tennis: "tennis",
+  "Educational Scholarships": "educational-scholarships",
+  "Life Skills Training": "life-skills-training",
+};
+
+function tabFromLocation() {
+  const params = new URLSearchParams(window.location.search);
+  const fromQuery = params.get("tab");
+  if (fromQuery && tabByHash[fromQuery]) return tabByHash[fromQuery];
+  return tabByHash[window.location.hash.replace(/^#/, "")] ?? "Tennis";
+}
 
 const chapters = [
   {
@@ -56,19 +76,52 @@ const pillars = [
 ] as const;
 
 export function ProgramTabs() {
-  const [tab, setTab] = useState<(typeof tabs)[number]>("Tennis");
+  const [tab, setTab] = useState<ProgramTab>("Tennis");
+
+  useEffect(() => {
+    const apply = () => setTab(tabFromLocation());
+    apply();
+    window.addEventListener("hashchange", apply);
+    window.addEventListener("popstate", apply);
+
+    // Next.js same-route hash clicks use pushState and skip hashchange.
+    const onClick = (event: MouseEvent) => {
+      const anchor = (event.target as HTMLElement | null)?.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href || (!href.includes("#") && !href.includes("tab="))) return;
+      const url = new URL(href, window.location.origin);
+      if (url.pathname === "/programs") queueMicrotask(apply);
+    };
+    document.addEventListener("click", onClick);
+
+    return () => {
+      window.removeEventListener("hashchange", apply);
+      window.removeEventListener("popstate", apply);
+      document.removeEventListener("click", onClick);
+    };
+  }, []);
+
+  const selectTab = (label: ProgramTab) => {
+    setTab(label);
+    const next = `/programs#${hashByTab[label]}`;
+    if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== next) {
+      window.history.replaceState(null, "", next);
+    }
+  };
 
   return (
-    <section aria-labelledby="program-tab-heading" className="bg-white px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+    <section id="program-tabs" aria-labelledby="program-tab-heading" className="bg-white px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
       <div className="flex flex-wrap justify-center gap-3">
         {tabs.map((label) => {
           const selected = label === tab;
           return (
             <button
               key={label}
+              id={hashByTab[label]}
               type="button"
               aria-pressed={selected}
-              onClick={() => setTab(label)}
+              onClick={() => selectTab(label)}
               className={cn(
                 "rounded-full px-5 py-2 text-xs font-bold tracking-wide uppercase",
                 selected ? "bg-blue text-white" : "border-2 border-blue bg-white text-blue",
@@ -97,7 +150,7 @@ function ScholarshipsPanel() {
       <p className="mx-auto max-w-3xl text-center text-[0.975rem] leading-relaxed text-ink-muted">
         We leverage the platform of Tennis to identify outstanding talent and invest in it by supporting
         students with academic scholarships and essential learning materials, including textbooks and
-        notebooks, across our communities and the world at large
+        notebooks, across our communities and the world at large.
       </p>
       <div className="mt-12 rounded-[1.75rem] bg-blue-tint px-6 py-10 sm:px-12 sm:py-12">
         <p className="mx-auto max-w-4xl text-center text-[1.05rem] leading-relaxed font-medium text-blue">
@@ -107,7 +160,7 @@ function ScholarshipsPanel() {
         </p>
       </div>
       <div className="mt-6">
-        <SdgGoals />
+        <SdgGoals ids={[1, 4]} />
       </div>
     </div>
   );

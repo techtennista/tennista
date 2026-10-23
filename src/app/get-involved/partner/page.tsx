@@ -12,7 +12,7 @@ export default function PartnerPage() {
   return (
     <>
       <CareersHero />
-      <CareersForm />
+      <CareersForm type="partnership" />
     </>
   );
 }

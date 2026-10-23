@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { MediaHub } from "@/components/sections/media-hub";
+import { getPublishedEvents } from "@/lib/public-events";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Events",
@@ -7,6 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/events" },
 };
 
-export default function EventsPage() {
-  return <MediaHub initialTab="events" />;
+export default async function EventsPage() {
+  const events = await getPublishedEvents();
+  return <MediaHub initialTab="events" eventItems={events} />;
 }

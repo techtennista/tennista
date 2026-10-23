@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { BlogSection } from "@/components/sections/blog-section";
 import { NewsletterForm } from "@/components/layout/newsletter-form";
+import { NewsReplyForm } from "@/components/sections/news-reply-form";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import type { ArticleDocument } from "@/lib/cms-content";
 
 export const newsPosts = [
   {
@@ -28,7 +30,15 @@ export const newsPosts = [
   },
 ] as const;
 
-export type NewsPost = (typeof newsPosts)[number];
+export type NewsPost = {
+  slug: string;
+  title: string;
+  date: string;
+  hero: string;
+  cardImage: string;
+  content?: ArticleDocument;
+  assetUrls?: Record<string, string>;
+};
 
 function PersonIcon() {
   return (
@@ -69,10 +79,10 @@ function ArticleNewsletter() {
   );
 }
 
-function PostNavigation({ post }: { post: NewsPost }) {
-  const index = newsPosts.findIndex((item) => item.slug === post.slug);
-  const previous = index > 0 ? newsPosts[index - 1] : undefined;
-  const next = index < newsPosts.length - 1 ? newsPosts[index + 1] : undefined;
+function PostNavigation({ post, posts }: { post: NewsPost; posts: NewsPost[] }) {
+  const index = posts.findIndex((item) => item.slug === post.slug);
+  const previous = index > 0 ? posts[index - 1] : undefined;
+  const next = index < posts.length - 1 ? posts[index + 1] : undefined;
 
   return (
     <nav aria-label="Adjacent posts" className="grid grid-cols-2 overflow-hidden rounded-[1.1rem]">
@@ -186,31 +196,33 @@ function ShortArticle({ post }: { post: NewsPost }) {
   );
 }
 
-function ReplyForm() {
-  const inputClass = "h-14 w-full rounded-full bg-blue-tint px-6 text-[0.95rem] text-ink outline-none focus:ring-2 focus:ring-white";
+function ManagedArticle({ post }: { post: NewsPost }) {
+  if (!post.content) return <ShortArticle post={post} />;
 
-  return (
-    <section aria-labelledby="reply-heading" className="mt-14 rounded-[1.25rem] bg-blue px-5 py-8 text-white sm:px-8 lg:px-10">
-      <h2 id="reply-heading" className="headline text-[clamp(2.2rem,4vw,3.5rem)] leading-[0.85]">Leave a Reply</h2>
-      <p className="mt-2 text-sm text-white/90">Your email address will not be published.</p>
-      <form className="mt-7 space-y-4">
-        <input aria-label="Name" name="name" placeholder="Name" className={inputClass} />
-        <input aria-label="Email" name="email" type="email" placeholder="Email" className={inputClass} />
-        <input aria-label="Website" name="website" type="url" placeholder="Website" className={inputClass} />
-        <textarea aria-label="Comment" name="comment" placeholder="Comment" rows={6} className="w-full resize-y rounded-[1rem] bg-blue-tint px-6 py-5 text-[0.95rem] text-ink outline-none focus:ring-2 focus:ring-white" />
-        <div className="flex flex-col gap-6 pt-2 sm:flex-row sm:items-center sm:justify-between">
-          <label className="flex items-center gap-4 text-sm text-white/90">
-            <input type="checkbox" className="size-6 rounded border-2 border-white bg-transparent accent-lime" />
-            Save my name, email, and website in this browser for the next time I comment.
-          </label>
-          <Button type="submit" variant="outlineWhite">Post Comment</Button>
-        </div>
-      </form>
-    </section>
-  );
+  return post.content.blocks.map((block) => {
+    if (block.type === "heading") return <h2 key={block.id} className="headline pt-4 text-2xl leading-tight text-blue">{block.text}</h2>;
+    if (block.type === "quote") {
+      return (
+        <figure key={block.id}>
+          <blockquote>{block.text}</blockquote>
+          {block.attribution ? <figcaption className="mt-2 text-sm font-bold text-blue">— {block.attribution}</figcaption> : null}
+        </figure>
+      );
+    }
+    if (block.type === "image") {
+      const imageUrl = post.assetUrls?.[block.assetId];
+      return imageUrl ? (
+        <figure key={block.id}>
+          <img src={imageUrl} alt={block.caption ?? ""} className="mt-8 aspect-[16/9] w-full rounded-[1rem] object-cover" />
+          {block.caption ? <figcaption className="mt-2 text-sm text-blue/55">{block.caption}</figcaption> : null}
+        </figure>
+      ) : null;
+    }
+    return <p key={block.id}>{block.text}</p>;
+  });
 }
 
-export function NewsArticle({ post }: { post: NewsPost }) {
+export function NewsArticle({ post, posts = [...newsPosts] }: { post: NewsPost; posts?: NewsPost[] }) {
   return (
     <>
       <article className="bg-white pb-8">
@@ -230,7 +242,7 @@ export function NewsArticle({ post }: { post: NewsPost }) {
                 <time>{post.date}</time>
               </div>
               <div className="article-copy mt-8 space-y-5 text-[1rem] leading-relaxed text-gray [&_blockquote]:border-l-[3px] [&_blockquote]:border-gray [&_blockquote]:py-1 [&_blockquote]:pl-5 [&_blockquote]:text-[1.35rem] [&_blockquote]:leading-snug">
-                {post.slug === newsPosts[0].slug ? <PrimaryArticle /> : <ShortArticle post={post} />}
+                {post.content ? <ManagedArticle post={post} /> : post.slug === newsPosts[0].slug ? <PrimaryArticle /> : <ShortArticle post={post} />}
               </div>
               <div className="mt-8 flex items-center justify-between gap-5 border-t border-blue/35 pt-6">
                 <Button href="/media/tennis-news">See Story Mention</Button>
@@ -240,11 +252,11 @@ export function NewsArticle({ post }: { post: NewsPost }) {
 
             <div className="space-y-8 lg:sticky lg:top-[6rem]">
               <ArticleNewsletter />
-              <PostNavigation post={post} />
+              <PostNavigation post={post} posts={posts} />
             </div>
           </div>
 
-          <ReplyForm />
+          <NewsReplyForm articleTitle={post.title} />
         </Container>
       </article>
 

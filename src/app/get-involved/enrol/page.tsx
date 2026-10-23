@@ -12,7 +12,7 @@ export default function EnrolPage() {
   return (
     <>
       <CareersHero />
-      <CareersForm />
+      <CareersForm type="student_enrolment" />
     </>
   );
 }

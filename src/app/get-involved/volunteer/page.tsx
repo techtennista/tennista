@@ -12,7 +12,7 @@ export default function VolunteerPage() {
   return (
     <>
       <CareersHero />
-      <CareersForm />
+      <CareersForm type="volunteer" />
     </>
   );
 }

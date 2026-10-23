@@ -87,6 +87,9 @@ export function JuniorTennisTournament() {
   const [shirt, setShirt] = useState("");
   const [heard, setHeard] = useState("");
   const [agreed, setAgreed] = useState("");
+  const [details, setDetails] = useState<Record<string, unknown>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const [lead, accent] = steps[step].split(" ");
 
@@ -159,10 +162,46 @@ export function JuniorTennisTournament() {
               ) : (
                 <form
                   className="mt-8"
-                  onSubmit={(event) => {
+                  onSubmit={async (event) => {
                     event.preventDefault();
-                    if (step < steps.length - 1) setStep(step + 1);
-                    else setSent(true);
+                    const currentFields = Object.fromEntries(new FormData(event.currentTarget));
+                    const nextDetails: Record<string, unknown> = {
+                      ...details,
+                      ...currentFields,
+                      gender,
+                      basedInLagos: lagos,
+                      expertise: level,
+                      schoolClass,
+                      shirtSize: shirt,
+                      heardFrom: heard,
+                      agreedToRules: agreed,
+                    };
+                    setDetails(nextDetails);
+                    if (step < steps.length - 1) {
+                      setStep(step + 1);
+                      return;
+                    }
+                    setSubmitting(true);
+                    setError("");
+                    try {
+                      const response = await fetch("/api/submissions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          type: "tournament_registration",
+                          ...nextDetails,
+                          name: nextDetails.fullName,
+                          sourcePath: window.location.pathname,
+                        }),
+                      });
+                      const result = (await response.json()) as { message?: string };
+                      if (!response.ok) throw new Error(result.message ?? "Please try again.");
+                      setSent(true);
+                    } catch (submissionError) {
+                      setError(submissionError instanceof Error ? submissionError.message : "Please try again.");
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
                   {step === 0 ? (
@@ -323,10 +362,11 @@ export function JuniorTennisTournament() {
                         Previous
                       </Button>
                     ) : null}
-                    <Button type="submit" variant={step === steps.length - 1 ? "lime" : "outlineWhite"}>
-                      {step === steps.length - 1 ? "Submit" : "Next"}
+                    <Button type="submit" disabled={submitting} variant={step === steps.length - 1 ? "lime" : "outlineWhite"}>
+                      {submitting ? "Submitting…" : step === steps.length - 1 ? "Submit" : "Next"}
                     </Button>
                   </div>
+                  {error ? <p className="mt-4 text-center text-sm font-semibold text-lime">{error}</p> : null}
                 </form>
               )}
             </div>

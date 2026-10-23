@@ -15,6 +15,13 @@ const tabs = [
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
+export type MediaStory = { title: string; image: string; href: string; date?: string };
+export type PhotoFeedItem = MediaStory & { id: string };
+export type PhotoFeed = {
+  items: PhotoFeedItem[];
+  nextOffset: number | null;
+  total: number;
+};
 
 const shots = [
   {
@@ -54,7 +61,7 @@ const shots = [
   },
 ] as const;
 
-const news = [
+const defaultNews: MediaStory[] = [
   {
     title: "Atilola, Zara, others shine at Tennista Foundation Junior Tennis' tourney",
     image: "/2025-tournament-1.jpg",
@@ -75,7 +82,7 @@ const news = [
   { title: "Djokovic vs Brooksby: Match insights with Watson", image: "/2026-tournament-1.jpg", href: "/media/tennis-news" },
   { title: "Dreaming big: 8 unforgettable 2021 US Open breakthroughs", image: "/2027-tournament-1.jpg", href: "/media/tennis-news" },
   { title: "Emma Raducanu leads British invasion at the 2021 US Open", image: "/2027-tournament02.jpg", href: "/media/tennis-news" },
-] as const;
+];
 
 const photos = [
   "Forehand on a clay court",
@@ -90,7 +97,19 @@ const photos = [
 
 const videos = ["Clinic session", "Match point", "Award moment", "Court warm-up", "Group drill", "Closing rally"] as const;
 
-export function MediaHub({ initialTab = "news" }: { initialTab?: TabId }) {
+export function MediaHub({
+  initialTab = "news",
+  newsItems = defaultNews,
+  eventItems = [],
+  photoFeed,
+  videoItems = [],
+}: {
+  initialTab?: TabId;
+  newsItems?: MediaStory[];
+  eventItems?: MediaStory[];
+  photoFeed?: PhotoFeed;
+  videoItems?: MediaStory[];
+}) {
   const reduced = useReducedMotion();
   const stageRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -109,7 +128,13 @@ export function MediaHub({ initialTab = "news" }: { initialTab?: TabId }) {
   const [query, setQuery] = useState("");
 
   const term = query.trim().toLowerCase();
-  const stories = news.filter((item) => item.title.toLowerCase().includes(term));
+  const searchableItems =
+    tab === "events"
+      ? eventItems
+      : tab === "videos"
+        ? videoItems
+        : newsItems;
+  const stories = searchableItems.filter((item) => item.title.toLowerCase().includes(term));
 
   return (
     <>
@@ -187,13 +212,184 @@ export function MediaHub({ initialTab = "news" }: { initialTab?: TabId }) {
       </section>
 
       <section className="bg-white px-5 pt-4 pb-16 sm:px-8 lg:px-12">
-        <GalleryPane key={`${tab}:${term}`} tab={tab} stories={stories} />
+        {tab === "photos" ? (
+          <PhotoInfiniteGrid key={term} query={query.trim()} initialFeed={photoFeed} />
+        ) : (
+          <GalleryPane key={`${tab}:${term}`} tab={tab} stories={stories} />
+        )}
       </section>
     </>
   );
 }
 
-function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly (typeof news)[number][] }) {
+function PhotoInfiniteGrid({
+  query,
+  initialFeed,
+}: {
+  query: string;
+  initialFeed?: PhotoFeed;
+}) {
+  const blankQuery = query === "";
+  const [items, setItems] = useState<PhotoFeedItem[]>(() => (blankQuery ? initialFeed?.items ?? [] : []));
+  const [nextOffset, setNextOffset] = useState<number | null>(() =>
+    blankQuery ? (initialFeed?.nextOffset ?? null) : null,
+  );
+  const [total, setTotal] = useState(() => (blankQuery ? initialFeed?.total ?? 0 : 0));
+  const [loading, setLoading] = useState(!blankQuery);
+  const [error, setError] = useState("");
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
+
+  useEffect(() => {
+    if (blankQuery && initialFeed) {
+      setItems(initialFeed.items);
+      setNextOffset(initialFeed.nextOffset);
+      setTotal(initialFeed.total);
+      setLoading(false);
+      setError("");
+      return;
+    }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    async function loadFirstPage() {
+      setLoading(true);
+      setError("");
+      setItems([]);
+      setNextOffset(null);
+      try {
+        const params = new URLSearchParams({ offset: "0", limit: "16" });
+        if (query) params.set("q", query);
+        const response = await fetch(`/api/photos?${params}`, { signal: controller.signal });
+        if (!response.ok) throw new Error("Unable to load photos.");
+        const page = (await response.json()) as PhotoFeed;
+        if (cancelled) return;
+        setItems(page.items);
+        setNextOffset(page.nextOffset);
+        setTotal(page.total);
+      } catch (loadError) {
+        if (cancelled || controller.signal.aborted) return;
+        setError(loadError instanceof Error ? loadError.message : "Unable to load photos.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadFirstPage();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [blankQuery, initialFeed, query]);
+
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || nextOffset == null) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting) || loadingRef.current || nextOffset == null) {
+          return;
+        }
+        loadingRef.current = true;
+        setLoading(true);
+        setError("");
+        const params = new URLSearchParams({ offset: String(nextOffset), limit: "16" });
+        if (query) params.set("q", query);
+        fetch(`/api/photos?${params}`)
+          .then(async (response) => {
+            if (!response.ok) throw new Error("Unable to load more photos.");
+            return (await response.json()) as PhotoFeed;
+          })
+          .then((page) => {
+            setItems((current) => {
+              const seen = new Set(current.map((item) => item.id));
+              return [...current, ...page.items.filter((item) => !seen.has(item.id))];
+            });
+            setNextOffset(page.nextOffset);
+            setTotal(page.total);
+          })
+          .catch((loadError) => {
+            setError(loadError instanceof Error ? loadError.message : "Unable to load more photos.");
+          })
+          .finally(() => {
+            loadingRef.current = false;
+            setLoading(false);
+          });
+      },
+      { rootMargin: "800px 0px" },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [nextOffset, query]);
+
+  if (!items.length && loading) return <GalleryLoader tab="photos" />;
+
+  if (!items.length) {
+    return (
+      <p className="mx-auto w-full py-16 text-center text-blue">
+        {error || (query ? "Nothing matches that search." : "Photos coming soon.")}
+      </p>
+    );
+  }
+
+  return (
+    <div>
+      <FadeGrid className="mx-auto grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
+        {items.map((photo) => (
+          <GalleryPhoto key={photo.id} photo={photo} />
+        ))}
+      </FadeGrid>
+      <div ref={sentinelRef} className="h-10 w-full" aria-hidden />
+      <p className="mt-4 text-center text-sm text-blue/55" aria-live="polite">
+        {loading
+          ? "Loading more photos…"
+          : nextOffset == null
+            ? `${total} photos`
+            : `Showing ${items.length} of ${total}`}
+      </p>
+      {error ? <p className="mt-2 text-center text-sm text-red-600">{error}</p> : null}
+    </div>
+  );
+}
+
+function GalleryPhoto({ photo }: { photo: PhotoFeedItem }) {
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <figure className="relative aspect-square overflow-hidden rounded-[1rem] bg-blue-tint">
+      {!loaded && !failed ? (
+        <div className="absolute inset-0 grid place-items-center" aria-hidden>
+          <span className="size-8 animate-pulse rounded-full border-2 border-blue/20 border-t-blue" />
+          <span className="sr-only">Loading photo</span>
+        </div>
+      ) : null}
+      {failed ? (
+        <div className="absolute inset-0 grid place-items-center px-3 text-center text-xs font-semibold text-blue/45">
+          Photo unavailable
+        </div>
+      ) : (
+        <img
+          src={photo.image}
+          alt={photo.title}
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+          className={cn(
+            "h-full w-full object-cover transition-opacity duration-300",
+            loaded ? "opacity-100" : "opacity-0",
+          )}
+        />
+      )}
+    </figure>
+  );
+}
+
+function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStory[] }) {
   const reduced = useReducedMotion();
   const [ready, setReady] = useState(false);
 
@@ -209,17 +405,18 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly (typeof n
   }
 
   if (tab === "events") {
-    const events = stories.filter((story) => story.title.startsWith("Atilola"));
-    if (events.length === 0) {
+    if (stories.length === 0) {
       return <p className="mx-auto w-full py-16 text-center text-blue">Nothing matches that search.</p>;
     }
     return (
       <FadeGrid className="grid w-full">
-        {events.map((story) => (
+        {stories.map((story) => (
           <article key={story.title} className="rounded-[1.25rem] bg-blue-tint p-4">
-            <img src={story.image} alt="" className="aspect-[16/10] w-full rounded-[1rem] object-cover" />
-            <h2 className="mt-4 text-sm leading-snug font-bold tracking-wide text-blue uppercase">{story.title}</h2>
-            <p className="mt-4 border-t border-blue/15 pt-3 text-sm text-ink-muted">01 April 2025</p>
+            <Link href={story.href} className="group block">
+              <img src={story.image} alt="" className="aspect-[16/10] w-full rounded-[1rem] object-cover transition group-hover:scale-[1.01]" />
+              <h2 className="mt-4 text-sm leading-snug font-bold tracking-wide text-blue uppercase">{story.title}</h2>
+            </Link>
+            <p className="mt-4 border-t border-blue/15 pt-3 text-sm text-ink-muted">{story.date ?? "Date to be announced"}</p>
           </article>
         ))}
       </FadeGrid>
@@ -237,6 +434,22 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly (typeof n
   }
 
   if (tab === "videos") {
+    if (stories.length) {
+      return (
+        <FadeGrid className="mx-auto grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {stories.map((video) => (
+            <a key={video.href} href={video.href} target="_blank" rel="noreferrer noopener" className="group relative block">
+              <img src={video.image} alt="" className="aspect-video w-full rounded-[1rem] bg-blue-tint object-cover" />
+              <span className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-blue transition group-hover:scale-110">
+                <svg viewBox="0 0 24 24" className="ml-0.5 size-5" fill="currentColor" aria-hidden><path d="M8 6.5v11l9-5.5-9-5.5z" /></svg>
+                <span className="sr-only">Play {video.title}</span>
+              </span>
+              <h2 className="mt-3 font-bold text-blue">{video.title}</h2>
+            </a>
+          ))}
+        </FadeGrid>
+      );
+    }
     return (
       <FadeGrid className="mx-auto grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {videos.map((label) => (

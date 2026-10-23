@@ -69,12 +69,12 @@ export const mainNav: NavItem[] = [
         },
         {
           label: "Educational Scholarships",
-          href: "/programs/educational-scholarships",
+          href: "/programs#educational-scholarships",
           description: "Funding that keeps the classroom door open",
         },
         {
           label: "Life Skills Training",
-          href: "/programs/life-skills-training",
+          href: "/programs#life-skills-training",
           description: "Mentorship that builds confident leaders",
         },
       ],

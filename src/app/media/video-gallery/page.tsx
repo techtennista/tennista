@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { MediaHub } from "@/components/sections/media-hub";
+import { getPublishedVideos } from "@/lib/public-media";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Video Gallery",
@@ -7,6 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/media/video-gallery" },
 };
 
-export default function VideoGalleryPage() {
-  return <MediaHub initialTab="videos" />;
+export default async function VideoGalleryPage() {
+  const videos = await getPublishedVideos();
+  return <MediaHub initialTab="videos" videoItems={videos} />;
 }

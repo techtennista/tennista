@@ -75,13 +75,20 @@ function Choice({
   );
 }
 
-export function CareersForm() {
+export function CareersForm({
+  type = "volunteer",
+}: {
+  type?: "volunteer" | "partnership" | "sponsorship" | "student_enrolment";
+}) {
   const [step, setStep] = useState(0);
   const [sent, setSent] = useState(false);
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [level, setLevel] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
+  const [details, setDetails] = useState<Record<string, unknown>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const toggleRole = (role: string) => {
     setPicked((current) => (current.includes(role) ? current.filter((item) => item !== role) : [...current, role]));
@@ -104,17 +111,50 @@ export function CareersForm() {
         ) : (
           <form
             className="mt-8"
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
-              if (step < steps.length - 1) setStep(step + 1);
-              else setSent(true);
+              const currentFields = Object.fromEntries(new FormData(event.currentTarget));
+              const nextDetails: Record<string, unknown> = {
+                ...details,
+                ...currentFields,
+                gender,
+                age,
+                experience: level,
+                roles: picked,
+              };
+              setDetails(nextDetails);
+              if (step < steps.length - 1) {
+                setStep(step + 1);
+                return;
+              }
+              setSubmitting(true);
+              setError("");
+              try {
+                const response = await fetch("/api/submissions", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    type,
+                    ...nextDetails,
+                    name: nextDetails.fullName,
+                    sourcePath: window.location.pathname,
+                  }),
+                });
+                const result = (await response.json()) as { message?: string };
+                if (!response.ok) throw new Error(result.message ?? "Please try again.");
+                setSent(true);
+              } catch (submissionError) {
+                setError(submissionError instanceof Error ? submissionError.message : "Please try again.");
+              } finally {
+                setSubmitting(false);
+              }
             }}
           >
             {step === 0 ? (
               <div className="space-y-4">
-                <input className={fieldClass} name="fullName" placeholder="Full Name" aria-label="Full Name" />
-                <input className={fieldClass} name="firstName" placeholder="First Name" aria-label="First Name" />
-                <input className={fieldClass} name="lastName" placeholder="Last Name" aria-label="Last Name" />
+                <input className={fieldClass} name="fullName" placeholder="Full Name" aria-label="Full Name" required />
+                <input className={fieldClass} name="email" type="email" placeholder="Email" aria-label="Email" required />
+                <input className={fieldClass} name="phone" type="tel" placeholder="Phone Number" aria-label="Phone Number" />
               </div>
             ) : null}
 
@@ -144,8 +184,6 @@ export function CareersForm() {
                     ))}
                   </div>
                 </fieldset>
-                <input className={fieldClass} name="phone" type="tel" placeholder="Phone Number" aria-label="Phone Number" />
-                <input className={fieldClass} name="email" type="email" placeholder="Email" aria-label="Email" />
                 <fieldset>
                   <legend className="text-sm font-bold text-ink">Age Range</legend>
                   <div className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
@@ -212,7 +250,7 @@ export function CareersForm() {
                 </button>
               ) : null}
               {step === steps.length - 1 ? (
-                <Button type="submit">SUBMIT</Button>
+                <Button type="submit" disabled={submitting}>{submitting ? "SUBMITTING…" : "SUBMIT"}</Button>
               ) : (
                 <button
                   type="submit"
@@ -222,6 +260,7 @@ export function CareersForm() {
                 </button>
               )}
             </div>
+            {error ? <p className="mt-4 text-center text-sm font-semibold text-red-600">{error}</p> : null}
           </form>
         )}
       </div>

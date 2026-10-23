@@ -25,7 +25,7 @@ const goals: Goal[] = [
     title: "Quality education",
     color: "#bc1428",
     icon: "/sdg-quality-education.png",
-    body: "School is part of the training. Tennista pairs time on the court with classroom support and scholarships, so a young person can stay in school and build a future that reaches past the baseline.",
+    body: "Our plan is to use the platform of Tennis to support academic excellence by rewarding high-flying students with academic scholarships and providing academic support materials such as textbooks and notebooks.",
   },
   {
     id: 5,
@@ -45,7 +45,8 @@ const goals: Goal[] = [
 
 const growEase = [0.16, 1, 0.3, 1] as const;
 
-export function SdgGoals() {
+export function SdgGoals({ ids }: { ids?: number[] } = {}) {
+  const visibleGoals = ids?.length ? goals.filter((goal) => ids.includes(goal.id)) : goals;
   const [openId, setOpenId] = useState<number | null>(null);
   const [flowId, setFlowId] = useState<number | null>(null);
   const reduced = useReducedMotion();
@@ -71,7 +72,7 @@ export function SdgGoals() {
 
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
-      {goals.map((goal) => {
+      {visibleGoals.map((goal) => {
         const open = openId === goal.id;
         const flow = flowId === goal.id;
         return (

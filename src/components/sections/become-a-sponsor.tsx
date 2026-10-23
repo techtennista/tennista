@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { InquiryForm } from "@/components/sections/inquiry-form";
 import { Container } from "@/components/ui/container";
 
 const formats = [
@@ -277,6 +278,12 @@ export function BecomeASponsor() {
           </div>
         </Container>
       </section>
+
+      <InquiryForm
+        type="sponsorship"
+        heading="Sponsor a programme"
+        intro="Tell us how you'd like to support kits, prizes, scholarships, or a full programme. The message lands in the admin inbox."
+      />
 
       <section className="bg-white pb-20">
         <Container>
