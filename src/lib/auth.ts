@@ -24,7 +24,10 @@ export const auth = betterAuth({
   appName: "Tennista Admin",
   database: db,
   secret: authSecret ?? "6d53fb978f1648589068a6b7c6b1f64a69d3c01897a940d09e2a743f862084b2",
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  baseURL:
+    process.env.BETTER_AUTH_URL?.trim() ||
+    process.env.URL?.trim() ||
+    "http://localhost:3000",
   emailAndPassword: {
     enabled: true,
     disableSignUp: process.env.AUTH_BOOTSTRAP !== "true",

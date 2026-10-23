@@ -12,6 +12,7 @@ export function appBaseUrl() {
   return (
     process.env.BETTER_AUTH_URL?.trim() ||
     process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    process.env.URL?.trim() ||
     "http://localhost:3000"
   ).replace(/\/$/, "");
 }
