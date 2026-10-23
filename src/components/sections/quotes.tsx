@@ -75,7 +75,7 @@ export function Quotes({
       aria-labelledby={id}
       className={cn(
         "relative bg-white py-6 sm:py-10",
-        overlapNext && "z-20 mb-[-3rem] bg-transparent pb-0 sm:mb-[-4rem] sm:pb-0",
+        overlapNext && "lg:z-20 lg:mb-[-4rem] lg:bg-transparent lg:pb-0",
       )}
     >
       <h2 id={id} className="sr-only">
@@ -88,7 +88,7 @@ export function Quotes({
               className={cn(
                 "relative overflow-hidden rounded-[1.25rem] bg-blue",
                 quote.image
-                  ? "lg:h-[34rem]"
+                  ? "min-h-[26rem] lg:h-[34rem] lg:min-h-0"
                   : "grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]",
               )}
             >

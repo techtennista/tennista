@@ -57,7 +57,7 @@ export function AboutHero() {
         </motion.div>
       </div>
 
-      <div className="relative mt-2 px-4 sm:px-6 lg:absolute lg:inset-x-2 lg:top-[9.25rem] lg:mt-0 lg:h-[27.5rem] lg:px-0">
+      <div className="relative mt-10 px-4 sm:mt-12 sm:px-6 lg:absolute lg:inset-x-2 lg:top-[9.25rem] lg:mt-0 lg:h-[27.5rem] lg:px-0">
         <div className="relative h-[clamp(32rem,58vw,44rem)] overflow-hidden rounded-tl-[2.75rem] bg-blue lg:h-full lg:rounded-[1.25rem]">
           <img
             src="/about-us-bg.jpg"

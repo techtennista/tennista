@@ -113,8 +113,7 @@ export function SiteFooter() {
 
         {/* Closing wordmark ---------------------------------------------- */}
         <div className="pt-8">
-          <WaveDivider variant="hairline" className="h-10 text-lime/70 md:h-16" />
-          <GiantWordmark className="-mt-2" />
+          <GiantWordmark />
         </div>
 
         {/* Legal bar ----------------------------------------------------- */}

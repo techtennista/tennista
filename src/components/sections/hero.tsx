@@ -26,8 +26,8 @@ export function Hero() {
     <section className="relative isolate overflow-hidden bg-blue pt-14 pb-[clamp(7rem,20vw,14rem)] lg:min-h-[45.5rem]">
       {/* Court lines sit on top of the blue and do not take part in layout. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 z-[1]">
-        <span className="absolute top-0 left-[9%] h-[11.5rem] w-[7px] bg-white" />
-        <span className="absolute top-0 right-[9%] h-[11.5rem] w-[7px] bg-white" />
+        <span className="absolute top-0 left-[9%] hidden h-[11.5rem] w-[7px] bg-white lg:block" />
+        <span className="absolute top-0 right-[9%] hidden h-[11.5rem] w-[7px] bg-white lg:block" />
         <span className="absolute inset-x-0 top-[34.3rem] h-[6px] bg-white" />
       </div>
 

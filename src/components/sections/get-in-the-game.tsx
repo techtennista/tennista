@@ -80,16 +80,24 @@ const cards: GameCardData[] = [
 function GameCard({ card, index, detailed }: { card: GameCardData; index: number; detailed?: boolean }) {
   return (
     <div className="lg:sticky lg:top-[5.25rem]" style={{ zIndex: index + 1 }}>
-      <article className={`relative isolate overflow-hidden rounded-[1.75rem] ${card.panel}`}>
+      <article
+        className={`relative isolate overflow-hidden rounded-[1.75rem] ${card.panel} ${
+          detailed ? "flex flex-col md:block" : ""
+        }`}
+      >
         <div
           className={`relative z-10 flex flex-col justify-center px-6 py-8 sm:px-10 sm:py-12 ${
             detailed
-              ? "min-h-[16rem] max-w-[58%] sm:max-w-[52%]"
+              ? "order-2 min-h-0 max-w-none md:order-none md:min-h-[16rem] md:max-w-[58%]"
               : "md:min-h-[23rem] md:max-w-[50%] md:py-14 lg:max-w-[46%] lg:px-14"
           }`}
         >
           <h3 className={`headline text-display-lg leading-[0.85] ${card.titleClass}`}>{card.title}</h3>
-          <p className={`mt-3 text-[0.95rem] leading-relaxed ${detailed ? "max-w-[24rem]" : "max-w-[18rem]"} ${card.bodyClass}`}>
+          <p
+            className={`mt-3 text-[0.95rem] leading-relaxed ${
+              detailed ? "max-w-none md:max-w-[24rem]" : "max-w-[18rem]"
+            } ${card.bodyClass}`}
+          >
             {detailed ? card.body : card.summary}
           </p>
           <div className="mt-6">
@@ -103,11 +111,13 @@ function GameCard({ card, index, detailed }: { card: GameCardData; index: number
         </div>
 
         <div
-          className={`relative z-20 md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[56%] lg:w-[62%] ${
-            detailed ? "absolute inset-y-0 right-0 h-auto w-[48%] sm:w-[46%]" : "hidden h-64 md:block"
+          className={`z-20 ${
+            detailed
+              ? "relative order-1 h-64 w-full sm:h-80 md:absolute md:inset-y-0 md:right-0 md:order-none md:h-auto md:w-[48%]"
+              : "relative hidden h-64 md:absolute md:inset-y-0 md:right-0 md:block md:h-auto md:w-[56%] lg:w-[62%]"
           }`}
         >
-          <img src={card.image} alt={card.alt} className="absolute inset-0 h-full w-full" />
+          <img src={card.image} alt={card.alt} className="h-full w-full object-cover md:absolute md:inset-0" />
         </div>
       </article>
     </div>

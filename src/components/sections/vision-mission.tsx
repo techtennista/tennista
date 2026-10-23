@@ -48,6 +48,7 @@ export function VisionMission() {
                     src={card.photo}
                     alt={card.alt}
                     fill
+                    quality={90}
                     sizes="(min-width: 768px) 50vw, 100vw"
                     className="object-cover"
                   />

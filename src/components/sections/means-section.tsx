@@ -15,11 +15,11 @@ export function MeansSection() {
         className="relative z-20 pt-16 pb-16 sm:pt-20 lg:px-3 lg:pt-[7.5rem] lg:pb-0"
       >
         <Reveal>
-          <div className="h-[17.5rem] w-[45.9375rem] max-w-full">
-            <h2 className="headline text-h2 w-max max-w-none origin-top-left scale-x-[0.75] text-blue-bright">
-              <span className="block whitespace-nowrap">Tennis is the means.</span>
-              <span className="mt-[0.08em] block whitespace-nowrap">Transformation is</span>
-              <span className="mt-[0.08em] block whitespace-nowrap">the destination.</span>
+          <div className="max-w-full lg:h-[17.5rem] lg:w-[45.9375rem]">
+            <h2 className="headline text-h2 text-blue-bright lg:w-max lg:max-w-none lg:origin-top-left lg:scale-x-[0.75]">
+              <span className="block lg:whitespace-nowrap">Tennis is the means.</span>
+              <span className="mt-[0.08em] block lg:whitespace-nowrap">Transformation is</span>
+              <span className="mt-[0.08em] block lg:whitespace-nowrap">the destination.</span>
             </h2>
           </div>
           <p className="prose-body mt-5 max-w-[42rem] text-ink">
@@ -33,7 +33,7 @@ export function MeansSection() {
         </Reveal>
       </Container>
 
-      <div className="pointer-events-none relative z-10 mt-4 ml-auto aspect-[653/659] w-[min(100%,40.8125rem)] md:absolute md:top-[7.5rem] md:right-0 md:mt-0">
+      <div className="pointer-events-none relative z-10 mt-4 ml-auto hidden aspect-[653/659] w-[min(100%,40.8125rem)] md:absolute md:top-[7.5rem] md:right-0 md:mt-0 md:block">
         <img src="/image_bg_border.svg" alt="" className="absolute inset-0 h-full w-full" />
         {/* <Image
           src="/tennis-means-girl.png"

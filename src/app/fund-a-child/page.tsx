@@ -9,19 +9,19 @@ export const metadata: Metadata = {
 export default function DonationPage() {
   return (
     <section aria-labelledby="donation-heading" className="overflow-hidden bg-[#f3f7fb] pb-16 sm:pb-20">
-      <h1 id="donation-heading" className="sr-only">
-        Donation
-      </h1>
-      <div className="overflow-hidden">
+      <div className="relative h-48 overflow-hidden sm:h-auto">
         <img
           src="/donation-banner.jpg"
           alt="Donation. A tennis racket, ball, and wrapped gift on a blue background."
-          className="block h-auto w-full -mb-[5%]"
+          className="block h-full w-full object-cover object-[18%_center] sm:h-auto sm:object-contain sm:-mb-[5%]"
         />
       </div>
+      <h1 id="donation-heading" className="headline px-4 pt-6 text-display-lg text-blue sm:sr-only">
+        Donation
+      </h1>
       <div
         id="zefy-donation-form-holder"
-        className="relative z-10 mx-auto -mt-3 h-[75rem] w-full max-w-[52rem] overflow-hidden rounded-[1.75rem] bg-[#f3f7fb] px-4 shadow-[0_24px_50px_-28px_rgb(0_31_82_/_0.45)] sm:-mt-4 sm:px-0"
+        className="relative z-10 mx-4 mt-5 h-[70rem] max-w-[52rem] overflow-hidden rounded-[1.5rem] bg-white shadow-[0_24px_50px_-28px_rgb(0_31_82_/_0.45)] sm:mx-auto sm:-mt-4 sm:h-[75rem] sm:rounded-[1.75rem] sm:bg-[#f3f7fb]"
         aria-label="Donation form"
       >
         <iframe
