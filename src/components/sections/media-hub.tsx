@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
 import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -239,10 +239,40 @@ function PhotoInfiniteGrid({
   const [error, setError] = useState("");
   const sentinelRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
+  const nextOffsetRef = useRef(nextOffset);
+  nextOffsetRef.current = nextOffset;
+
+  const loadMore = useCallback(async () => {
+    const offset = nextOffsetRef.current;
+    if (offset == null || loadingRef.current) return;
+    loadingRef.current = true;
+    setLoading(true);
+    setError("");
+    try {
+      const params = new URLSearchParams({ offset: String(offset), limit: "16" });
+      if (query) params.set("q", query);
+      const response = await fetch(`/api/photos?${params}`);
+      if (!response.ok) throw new Error("Unable to load more photos.");
+      const page = (await response.json()) as PhotoFeed;
+      setItems((current) => {
+        const seen = new Set(current.map((item) => item.id));
+        return [...current, ...page.items.filter((item) => !seen.has(item.id))];
+      });
+      nextOffsetRef.current = page.nextOffset;
+      setNextOffset(page.nextOffset);
+      setTotal(page.total);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Unable to load more photos.");
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+    }
+  }, [query]);
 
   useEffect(() => {
     if (blankQuery && initialFeed) {
       setItems(initialFeed.items);
+      nextOffsetRef.current = initialFeed.nextOffset;
       setNextOffset(initialFeed.nextOffset);
       setTotal(initialFeed.total);
       setLoading(false);
@@ -257,6 +287,7 @@ function PhotoInfiniteGrid({
       setLoading(true);
       setError("");
       setItems([]);
+      nextOffsetRef.current = null;
       setNextOffset(null);
       try {
         const params = new URLSearchParams({ offset: "0", limit: "16" });
@@ -266,6 +297,7 @@ function PhotoInfiniteGrid({
         const page = (await response.json()) as PhotoFeed;
         if (cancelled) return;
         setItems(page.items);
+        nextOffsetRef.current = page.nextOffset;
         setNextOffset(page.nextOffset);
         setTotal(page.total);
       } catch (loadError) {
@@ -285,45 +317,29 @@ function PhotoInfiniteGrid({
 
   useEffect(() => {
     const node = sentinelRef.current;
-    if (!node || nextOffset == null) return;
+    if (!node) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting) || loadingRef.current || nextOffset == null) {
-          return;
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void loadMore();
         }
-        loadingRef.current = true;
-        setLoading(true);
-        setError("");
-        const params = new URLSearchParams({ offset: String(nextOffset), limit: "16" });
-        if (query) params.set("q", query);
-        fetch(`/api/photos?${params}`)
-          .then(async (response) => {
-            if (!response.ok) throw new Error("Unable to load more photos.");
-            return (await response.json()) as PhotoFeed;
-          })
-          .then((page) => {
-            setItems((current) => {
-              const seen = new Set(current.map((item) => item.id));
-              return [...current, ...page.items.filter((item) => !seen.has(item.id))];
-            });
-            setNextOffset(page.nextOffset);
-            setTotal(page.total);
-          })
-          .catch((loadError) => {
-            setError(loadError instanceof Error ? loadError.message : "Unable to load more photos.");
-          })
-          .finally(() => {
-            loadingRef.current = false;
-            setLoading(false);
-          });
       },
       { rootMargin: "800px 0px" },
     );
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [nextOffset, query]);
+  }, [loadMore]);
+
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || nextOffset == null || loading) return;
+    const rect = node.getBoundingClientRect();
+    if (rect.top < window.innerHeight + 800) {
+      void loadMore();
+    }
+  }, [loading, loadMore, nextOffset]);
 
   if (!items.length && loading) return <GalleryLoader tab="photos" />;
 
@@ -350,6 +366,17 @@ function PhotoInfiniteGrid({
             ? `${total} photos`
             : `Showing ${items.length} of ${total}`}
       </p>
+      {nextOffset != null && !loading ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={() => void loadMore()}
+            className="rounded-full bg-blue px-5 py-2 text-sm font-bold text-white"
+          >
+            Load more photos
+          </button>
+        </div>
+      ) : null}
       {error ? <p className="mt-2 text-center text-sm text-red-600">{error}</p> : null}
     </div>
   );
