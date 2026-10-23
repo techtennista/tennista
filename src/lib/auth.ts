@@ -2,6 +2,7 @@ import "server-only";
 
 import { betterAuth } from "better-auth";
 import type { AdminRole } from "@/lib/admin-roles";
+import { AUTH_COOKIE_PREFIX } from "@/lib/auth-cookie";
 import { db } from "@/lib/db";
 
 export type { AdminRole };
@@ -60,7 +61,7 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    cookiePrefix: "tennista_admin",
+    cookiePrefix: AUTH_COOKIE_PREFIX,
     useSecureCookies: process.env.NODE_ENV === "production",
     database: {
       validateSchema: false,

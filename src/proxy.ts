@@ -1,16 +1,24 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { AUTH_SESSION_COOKIE } from "@/lib/auth-cookie";
 
-export async function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname === "/admin/login" || request.nextUrl.pathname === "/admin/join") {
+const PUBLIC_ADMIN_PATHS = new Set(["/admin/login", "/admin/join"]);
+
+function hasAdminSessionCookie(request: NextRequest) {
+  return request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.includes(AUTH_SESSION_COOKIE) && cookie.value);
+}
+
+export function proxy(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
+  if (PUBLIC_ADMIN_PATHS.has(pathname)) {
     return NextResponse.next();
   }
 
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) {
+  if (!hasAdminSessionCookie(request)) {
     const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
+    loginUrl.searchParams.set("next", `${pathname}${search}`);
     return NextResponse.redirect(loginUrl);
   }
 
