@@ -19,7 +19,7 @@ export function AdminShell({
           <img src="/tennista-logo.png" alt="Tennista Foundation" className="h-11 w-auto" />
           <span className="headline text-[1.25rem] leading-none text-white">Admin</span>
         </Link>
-        <AdminNav newFormsCount={newFormsCount} />
+        <AdminNav newFormsCount={newFormsCount} role={session.role} />
         <div className="mt-10 border-t border-white/15 pt-5 lg:absolute lg:right-6 lg:bottom-6 lg:left-6">
           <p className="truncate text-sm font-bold">{session.user.name}</p>
           <p className="mt-1 truncate text-xs text-white/60">{session.user.email}</p>

@@ -1,7 +1,10 @@
 import "server-only";
 
 import { betterAuth } from "better-auth";
+import type { AdminRole } from "@/lib/admin-roles";
 import { db } from "@/lib/db";
+
+export type { AdminRole };
 
 const allowedAdminEmails = new Set(
   (process.env.ADMIN_EMAILS ?? "")
@@ -62,4 +65,3 @@ export const auth = betterAuth({
   },
 });
 
-export type AdminRole = "super_admin" | "editor" | "contributor";

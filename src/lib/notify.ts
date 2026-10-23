@@ -74,6 +74,36 @@ export async function notifyInbox({
   }
 }
 
+export async function sendAdminInvite({
+  email,
+  roleLabel,
+  invitedBy,
+  url,
+}: {
+  email: string;
+  roleLabel: string;
+  invitedBy: string;
+  url: string;
+}) {
+  try {
+    return await sendEmail({
+      to: email,
+      subject: "You're invited to Tennista Admin",
+      html: `
+        <p>Hi,</p>
+        <p>${invitedBy} invited you to help maintain the Tennista Foundation website as a <strong>${roleLabel}</strong>.</p>
+        <p>Set up your account here (the link expires in 7 days):</p>
+        <p><a href="${url}">${url}</a></p>
+        <p>You'll choose your name and password, then you can sign in at the admin desk.</p>
+        <p>— Tennista Foundation</p>
+      `,
+    });
+  } catch (error) {
+    console.error("Unable to send admin invite", error);
+    return { ok: false as const, status: 0 };
+  }
+}
+
 export async function sendNewsletterWelcome({
   email,
   firstName,

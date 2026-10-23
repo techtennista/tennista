@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { AdminRole } from "@/lib/admin-roles";
 import { cn } from "@/lib/utils";
 
 const adminNav = [
@@ -23,13 +24,23 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AdminNav({ newFormsCount = 0 }: { newFormsCount?: number }) {
+export function AdminNav({
+  newFormsCount = 0,
+  role,
+}: {
+  newFormsCount?: number;
+  role?: AdminRole;
+}) {
   const pathname = usePathname();
+  const items = [
+    ...adminNav,
+    ...(role && role !== "contributor" ? ([{ label: "Team", href: "/admin/team" }] as const) : []),
+  ];
 
   return (
     <nav aria-label="Admin" className="mt-10">
       <ul className="space-y-1">
-        {adminNav.map((item) => {
+        {items.map((item) => {
           const active = isActive(pathname, item.href);
           const showBadge = "badgeKey" in item && item.badgeKey === "forms" && newFormsCount > 0;
           return (
