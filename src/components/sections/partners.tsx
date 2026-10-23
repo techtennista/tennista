@@ -18,30 +18,74 @@ const brands = [
 ];
 
 const mentions = [
-  { name: "Punch", src: "/public-eyes/punch.png" },
-  { name: "ThisDay", src: "/public-eyes/this-day.png" },
-  { name: "The Sun", src: "/public-eyes/the-sun.png" },
-  { name: "SportXvibe", src: "/public-eyes/sportxvibe.png" },
+  {
+    name: "Punch",
+    src: "/public-eyes/punch.png",
+    href: "https://punchng.com/tennista-foundation-eyes-grassroots-dev/",
+  },
+  {
+    name: "ThisDay",
+    src: "/public-eyes/this-day.png",
+    href: "https://www.thisdaylive.com/2025/04/20/tennista-foundation-offers-junior-tennis-tournament-winners-runner-ups-scholarship/",
+  },
+  {
+    name: "The Sun",
+    src: "/public-eyes/the-sun.png",
+    href: "https://thesun.ng/tennista-foundation-offers-junior-tennis-tournament-winners-runner-ups-scholarships/",
+  },
+  {
+    name: "SportXvibe",
+    src: "/public-eyes/sportxvibe.png",
+    href: "https://sportxvibe.com.ng/tennista-foundation-offers-junior-tennis-tournament-winners-runner-ups-scholarship/",
+  },
   { name: "Independent", src: "/public-eyes/independent.png" },
-  { name: "msn", src: "/public-eyes/msn.png" },
-  { name: "The Guardian", src: "/public-eyes/the-guardian.png" },
-  { name: "Daily Trust", src: "/public-eyes/daily-trust.png" },
-  { name: "BusinessDay", src: "/public-eyes/business-day.png" },
+  {
+    name: "msn",
+    src: "/public-eyes/msn.png",
+    href: "https://www.msn.com/en-xl/africa/nigeria/tennista-foundation-eyes-grassroots-dev/ar-AA1Dd63U",
+  },
+  {
+    name: "The Guardian",
+    src: "/public-eyes/the-guardian.png",
+    href: "https://guardian.ng/sport/tennis/edward-aina-win-maiden-junior-tennis-tourney/",
+  },
+  {
+    name: "Daily Trust",
+    src: "/public-eyes/daily-trust.png",
+    href: "https://dailytrust.com/foundation-offers-scholarship-to-junior-tennis-players/",
+  },
+  {
+    name: "BusinessDay",
+    src: "/public-eyes/business-day.png",
+    href: "https://businessday.ng/sports/article/tennista-offer-junior-tennis-tournament-winners-runner-ups-scholarship/",
+  },
 ];
 
-function LogoSlot({ name, src }: { name: string; src: string }) {
+type Logo = { name: string; src: string; href?: string };
+
+function LogoSlot({ name, src, href }: Logo) {
+  const mark = (
+    <img
+      src={src}
+      alt={name}
+      className="max-h-16 w-auto max-w-[12.5rem] object-contain transition-transform duration-500 ease-[var(--ease-out-expo)] hover:scale-105 sm:max-h-[4.5rem]"
+    />
+  );
+
   return (
     <div className="grid h-24 place-items-center px-3 sm:h-28">
-      <img
-        src={src}
-        alt={name}
-        className="max-h-16 w-auto max-w-[12.5rem] object-contain transition-transform duration-500 ease-[var(--ease-out-expo)] hover:scale-105 sm:max-h-[4.5rem]"
-      />
+      {href ? (
+        <a href={href} target="_blank" rel="noreferrer noopener" aria-label={`${name} coverage of Tennista`}>
+          {mark}
+        </a>
+      ) : (
+        mark
+      )}
     </div>
   );
 }
 
-function LogoWall({ logos }: { logos: { name: string; src: string }[] }) {
+function LogoWall({ logos }: { logos: Logo[] }) {
   const loneLast = logos.length % 3 === 1;
 
   return (
@@ -56,7 +100,7 @@ function LogoWall({ logos }: { logos: { name: string; src: string }[] }) {
           key={logo.name}
           className={loneLast && index === logos.length - 1 ? "col-span-2 sm:col-span-1 sm:col-start-2" : undefined}
         >
-          <LogoSlot name={logo.name} src={logo.src} />
+          <LogoSlot name={logo.name} src={logo.src} href={logo.href} />
         </RevealItem>
       ))}
     </RevealGroup>
