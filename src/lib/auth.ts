@@ -21,14 +21,38 @@ if (process.env.NODE_ENV === "production" && !isProductionBuild && !authSecret) 
   throw new Error("BETTER_AUTH_SECRET is required in production.");
 }
 
+const fallbackAuthUrl =
+  process.env.BETTER_AUTH_URL?.trim() ||
+  process.env.URL?.trim() ||
+  "http://localhost:3000";
+
+const productionHosts = [
+  "tennistafoundation.org",
+  "www.tennistafoundation.org",
+  "tennistafoundation.netlify.app",
+  "*.netlify.app",
+  "localhost:*",
+  "127.0.0.1:*",
+];
+
 export const auth = betterAuth({
   appName: "Tennista Admin",
   database: db,
   secret: authSecret ?? "6d53fb978f1648589068a6b7c6b1f64a69d3c01897a940d09e2a743f862084b2",
-  baseURL:
-    process.env.BETTER_AUTH_URL?.trim() ||
-    process.env.URL?.trim() ||
+  // Allow the custom domain, www, and Netlify hostnames. A single static
+  // BETTER_AUTH_URL of *.netlify.app rejects origin https://tennistafoundation.org.
+  baseURL: {
+    allowedHosts: productionHosts,
+    protocol: "auto",
+    fallback: fallbackAuthUrl,
+  },
+  trustedOrigins: [
+    "https://tennistafoundation.org",
+    "https://www.tennistafoundation.org",
+    "https://tennistafoundation.netlify.app",
     "http://localhost:3000",
+    "http://localhost:3001",
+  ],
   emailAndPassword: {
     enabled: true,
     disableSignUp: process.env.AUTH_BOOTSTRAP !== "true",
@@ -63,6 +87,7 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: AUTH_COOKIE_PREFIX,
     useSecureCookies: process.env.NODE_ENV === "production",
+    trustedProxyHeaders: true,
     database: {
       validateSchema: false,
     },

@@ -17,19 +17,26 @@ export function AdminLoginForm() {
 
   return (
     <form
+      method="post"
+      action="/admin/login"
       className="mt-8 space-y-5"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
         setError("");
-        const result = await authClient.signIn.email({ email, password });
-        if (result.error) {
-          setError(result.error.message ?? "Unable to sign in.");
+        try {
+          const result = await authClient.signIn.email({ email, password });
+          if (result.error) {
+            setError(result.error.message ?? "Unable to sign in.");
+            setPending(false);
+            return;
+          }
+          router.replace(destination);
+          router.refresh();
+        } catch (signInError) {
+          setError(signInError instanceof Error ? signInError.message : "Unable to sign in.");
           setPending(false);
-          return;
         }
-        router.replace(destination);
-        router.refresh();
       }}
     >
       <label className="block">
