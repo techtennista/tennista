@@ -39,7 +39,7 @@ export default async function AdminVideosPage() {
             Videos
           </h1>
           <p className="mt-4 max-w-2xl text-[0.95rem] leading-relaxed text-gray">
-            Manage YouTube and Vimeo entries, thumbnails, and publication state.
+            Manage YouTube, Vimeo, and Google Drive video entries, thumbnails, and publication state.
           </p>
         </div>
         <Link
@@ -88,7 +88,7 @@ export default async function AdminVideosPage() {
         ) : (
           <div className="px-6 py-16 text-center">
             <h2 className="font-bold text-blue">No videos yet</h2>
-            <p className="mt-2 text-sm text-gray">Add a YouTube or Vimeo video.</p>
+            <p className="mt-2 text-sm text-gray">Add a YouTube, Vimeo, or Google Drive video.</p>
           </div>
         )}
       </div>

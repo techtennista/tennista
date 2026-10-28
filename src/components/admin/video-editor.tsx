@@ -3,14 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { GalleryAssetOption } from "@/components/admin/gallery-editor";
+import { importGoogleMedia } from "@/components/admin/google-import";
 
 export type EditableVideo = {
   id: string;
   slug: string;
   title: string;
   description: string;
-  provider: "youtube" | "vimeo";
+  provider: "youtube" | "vimeo" | "upload";
   externalUrl: string;
+  videoAssetId: string;
   thumbnailAssetId: string;
   status: string;
   publishedAt: string;
@@ -21,10 +23,12 @@ const fieldClass =
 
 export function VideoEditor({
   assets,
+  videoAssets = [],
   video,
   canPublish,
 }: {
   assets: GalleryAssetOption[];
+  videoAssets?: GalleryAssetOption[];
   video?: EditableVideo;
   canPublish: boolean;
 }) {
@@ -32,8 +36,9 @@ export function VideoEditor({
   const [title, setTitle] = useState(video?.title ?? "");
   const [slug, setSlug] = useState(video?.slug ?? "");
   const [description, setDescription] = useState(video?.description ?? "");
-  const [provider, setProvider] = useState<"youtube" | "vimeo">(video?.provider ?? "youtube");
+  const [provider, setProvider] = useState<"youtube" | "vimeo" | "upload">(video?.provider ?? "youtube");
   const [externalUrl, setExternalUrl] = useState(video?.externalUrl ?? "");
+  const [videoAssetId, setVideoAssetId] = useState(video?.videoAssetId ?? "");
   const [thumbnailAssetId, setThumbnailAssetId] = useState(video?.thumbnailAssetId ?? "");
   const [status, setStatus] = useState(video?.status ?? "draft");
   const [publishedAt, setPublishedAt] = useState(
@@ -43,12 +48,42 @@ export function VideoEditor({
   const [message, setMessage] = useState("");
 
   async function save() {
-    if (!title.trim() || !externalUrl.trim()) {
-      setMessage("Add a title and provider URL before saving.");
+    if (!title.trim()) {
+      setMessage("Add a title before saving.");
       return;
     }
     setSaving(true);
     setMessage("");
+    let uploadedVideoId = videoAssetId;
+    try {
+      if (provider === "upload" && !uploadedVideoId && externalUrl.trim()) {
+        setMessage("Importing the video from Google Drive…");
+        const imported = await importGoogleMedia({
+          url: externalUrl.trim(),
+          title,
+        });
+        const videoFile = imported.assets.find((asset) => asset.mimeType.startsWith("video/"));
+        if (!videoFile) {
+          throw new Error("That Google link did not contain a video file.");
+        }
+        uploadedVideoId = videoFile.id;
+        setVideoAssetId(videoFile.id);
+      }
+    } catch (error) {
+      setSaving(false);
+      setMessage(error instanceof Error ? error.message : "Unable to import that Google Drive video.");
+      return;
+    }
+    if (provider === "upload" && !uploadedVideoId) {
+      setSaving(false);
+      setMessage("Paste a Google Drive video URL or choose an uploaded video file.");
+      return;
+    }
+    if (provider !== "upload" && !externalUrl.trim()) {
+      setSaving(false);
+      setMessage("Add a title and provider URL before saving.");
+      return;
+    }
     const response = await fetch(video ? `/api/admin/videos/${video.id}` : "/api/admin/videos", {
       method: video ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -57,7 +92,8 @@ export function VideoEditor({
         slug,
         description,
         provider,
-        externalUrl,
+        externalUrl: provider === "upload" ? null : externalUrl,
+        videoAssetId: provider === "upload" ? uploadedVideoId : null,
         thumbnailAssetId: thumbnailAssetId || null,
         status,
         publishedAt: publishedAt ? new Date(publishedAt).toISOString() : null,
@@ -139,21 +175,22 @@ export function VideoEditor({
         <section className="rounded-[1rem] border border-blue/10 bg-white p-5 sm:p-7">
           <h2 className="headline text-[1.5rem] leading-none text-blue">Video source</h2>
           <p className="mt-2 text-sm leading-relaxed text-gray">
-            Paste a standard provider URL or an embed URL. Only HTTPS YouTube and Vimeo links are accepted.
+            Paste a YouTube, Vimeo, or public Google Drive video URL. Uploaded files from the media library also work.
           </p>
           <label className="mt-5 block text-sm font-bold text-blue">
             Provider
             <select
               value={provider}
-              onChange={(event) => setProvider(event.target.value as "youtube" | "vimeo")}
+              onChange={(event) => setProvider(event.target.value as "youtube" | "vimeo" | "upload")}
               className={fieldClass}
             >
               <option value="youtube">YouTube</option>
               <option value="vimeo">Vimeo</option>
+              <option value="upload">Google Drive or uploaded file</option>
             </select>
           </label>
           <label className="mt-5 block text-sm font-bold text-blue">
-            Provider or embed URL
+            {provider === "upload" ? "Google Drive URL" : "Provider or embed URL"}
             <input
               type="url"
               value={externalUrl}
@@ -162,10 +199,29 @@ export function VideoEditor({
               placeholder={
                 provider === "youtube"
                   ? "https://www.youtube.com/watch?v=…"
-                  : "https://vimeo.com/…"
+                  : provider === "vimeo"
+                    ? "https://vimeo.com/…"
+                    : "https://drive.google.com/file/d/…"
               }
             />
           </label>
+          {provider === "upload" ? (
+            <label className="mt-5 block text-sm font-bold text-blue">
+              Or choose an uploaded video
+              <select
+                value={videoAssetId}
+                onChange={(event) => setVideoAssetId(event.target.value)}
+                className={fieldClass}
+              >
+                <option value="">Select a video file</option>
+                {videoAssets.map((asset) => (
+                  <option key={asset.id} value={asset.id}>
+                    {asset.filename}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
         </section>
       </div>
 

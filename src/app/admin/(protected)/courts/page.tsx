@@ -60,7 +60,7 @@ export default async function CourtsAdminPage({
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue/45">Directory</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-blue">Tennis courts</h1>
-          <p className="mt-2 text-sm text-blue/60">Import, verify, and publish locations for the public court finder.</p>
+          <p className="mt-2 text-sm text-blue/60">Create a court, upload a photo, or import listings to review for the public finder.</p>
         </div>
         <a
           href={`/api/admin/courts/export?${new URLSearchParams({
@@ -85,7 +85,11 @@ export default async function CourtsAdminPage({
         <button className="cursor-pointer rounded-full bg-blue px-5 py-2 text-sm font-bold text-white hover:bg-[#123e96]">Filter</button>
       </form>
 
-      <CourtManager courts={courts} canImport={session.role !== "contributor"} />
+      <CourtManager
+        courts={courts}
+        canImport={session.role !== "contributor"}
+        canPublish={session.role !== "contributor"}
+      />
     </div>
   );
 }

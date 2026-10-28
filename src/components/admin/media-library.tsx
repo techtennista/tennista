@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { importGoogleMedia } from "@/components/admin/google-import";
 
 type Asset = {
   id: string;
@@ -38,7 +39,11 @@ export function MediaLibrary() {
   const [file, setFile] = useState<File | null>(null);
   const [altText, setAltText] = useState("");
   const [caption, setCaption] = useState("");
+  const [googleUrl, setGoogleUrl] = useState("");
+  const [googleTitle, setGoogleTitle] = useState("");
+  const [createGallery, setCreateGallery] = useState(true);
   const [pending, setPending] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState("");
 
   const loadAssets = useCallback(async () => {
@@ -54,8 +59,88 @@ export function MediaLibrary() {
     });
   }, [loadAssets]);
 
+  async function importFromGoogle() {
+    if (!googleUrl.trim()) return;
+    setImporting(true);
+    setMessage("");
+    try {
+      const result = await importGoogleMedia({
+        url: googleUrl.trim(),
+        title: googleTitle.trim() || undefined,
+        createGallery,
+        onProgress: (imported, total) => {
+          setMessage(`Importing ${imported} of ${total}…`);
+        },
+      });
+      const extra = result.failures.length ? ` ${result.failures.length} file(s) were skipped.` : "";
+      setMessage(
+        result.galleryId
+          ? `Imported ${result.assets.length} file(s) and created a gallery.${extra}`
+          : `Imported ${result.assets.length} file(s).${extra}`,
+      );
+      setGoogleUrl("");
+      await loadAssets();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to import that Google link.");
+    } finally {
+      setImporting(false);
+    }
+  }
+
   return (
     <div className="mt-8 grid items-start gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
+      <div className="space-y-6">
+      <form
+        className="rounded-[1rem] border border-blue/10 bg-white p-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void importFromGoogle();
+        }}
+      >
+        <h2 className="headline text-[1.5rem] leading-none text-blue">Paste a Google link</h2>
+        <p className="mt-3 text-sm leading-relaxed text-gray">
+          Drop in a public Google Photos album, Drive file, or Drive folder. Photos and videos are copied into the library.
+        </p>
+        <label className="mt-5 block">
+          <span className="text-sm font-bold text-blue">Google Drive or Photos URL</span>
+          <input
+            type="url"
+            value={googleUrl}
+            onChange={(event) => setGoogleUrl(event.target.value)}
+            placeholder="https://photos.app.goo.gl/… or https://drive.google.com/…"
+            className="mt-2 h-11 w-full rounded-[0.65rem] border border-blue/15 px-3 text-sm text-gray outline-none focus:border-blue-bright"
+            required
+          />
+        </label>
+        <label className="mt-4 block">
+          <span className="text-sm font-bold text-blue">Title (optional)</span>
+          <input
+            value={googleTitle}
+            onChange={(event) => setGoogleTitle(event.target.value)}
+            placeholder="Used for the gallery and alt text"
+            className="mt-2 h-11 w-full rounded-[0.65rem] border border-blue/15 px-3 text-sm text-gray outline-none focus:border-blue-bright"
+          />
+        </label>
+        <label className="mt-4 flex items-start gap-3 text-sm text-gray">
+          <input
+            type="checkbox"
+            checked={createGallery}
+            onChange={(event) => setCreateGallery(event.target.checked)}
+            className="mt-1"
+          />
+          <span>Create a photo gallery from the imported images</span>
+        </label>
+        <button
+          type="submit"
+          disabled={!googleUrl.trim() || importing}
+          className="mt-5 h-11 cursor-pointer rounded-full bg-blue px-6 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {importing ? "Importing…" : "Import from Google"}
+        </button>
+        <p aria-live="polite" className="mt-4 min-h-5 text-sm font-medium text-blue">
+          {importing || googleUrl ? message : ""}
+        </p>
+      </form>
       <form
         className="rounded-[1rem] border border-blue/10 bg-white p-5"
         onSubmit={async (event) => {
@@ -166,9 +251,10 @@ export function MediaLibrary() {
           {pending ? "Uploading…" : "Upload file"}
         </button>
         <p aria-live="polite" className="mt-4 min-h-5 text-sm font-medium text-blue">
-          {message}
+          {!importing ? message : ""}
         </p>
       </form>
+      </div>
 
       <section className="min-w-0">
         <div className="flex items-center justify-between gap-4">

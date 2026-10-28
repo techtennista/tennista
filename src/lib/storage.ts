@@ -46,6 +46,29 @@ export async function createUploadUrl({
   );
 }
 
+export async function putMediaObject({
+  objectKey,
+  body,
+  contentType,
+  contentLength,
+}: {
+  objectKey: string;
+  body: Buffer | Uint8Array;
+  contentType: string;
+  contentLength?: number;
+}) {
+  await client().send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: objectKey,
+      Body: body,
+      ContentType: contentType,
+      ContentLength: contentLength,
+      CacheControl: "public, max-age=31536000, immutable",
+    }),
+  );
+}
+
 export function publicAssetUrl(objectKey: string) {
   if (objectKey.startsWith("/")) return objectKey;
   const { endpoint } = storageConfig();

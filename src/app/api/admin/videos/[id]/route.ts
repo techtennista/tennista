@@ -1,15 +1,7 @@
 import { getAdminSession } from "@/lib/admin-session";
-import {
-  isContributorEditable,
-  isUuid,
-  normalizeSlug,
-  optionalText,
-  parseContentStatus,
-  parsePublishedAt,
-} from "@/lib/admin-content";
+import { isContributorEditable, isUuid, parsePublishedAt } from "@/lib/admin-content";
+import { parseVideoInput, type VideoProvider } from "@/lib/admin-videos";
 import { db } from "@/lib/db";
-
-type VideoProvider = "youtube" | "vimeo";
 
 type VideoRow = {
   id: string;
@@ -17,35 +9,14 @@ type VideoRow = {
   title: string;
   description: string | null;
   provider: VideoProvider;
-  external_url: string;
+  external_url: string | null;
+  video_asset_id: string | null;
   thumbnail_asset_id: string | null;
   status: string;
   published_at: Date | null;
   sort_order: number;
   created_by: string;
 };
-
-function parseProvider(value: unknown): VideoProvider | null {
-  return value === "youtube" || value === "vimeo" ? value : null;
-}
-
-function parseProviderUrl(value: unknown, provider: VideoProvider | null) {
-  if (!provider || typeof value !== "string") return null;
-  try {
-    const url = new URL(value.trim());
-    if (url.protocol !== "https:") return null;
-    const host = url.hostname.replace(/^www\./, "");
-    const valid =
-      provider === "youtube"
-        ? ["youtube.com", "youtu.be", "youtube-nocookie.com"].some(
-            (domain) => host === domain || host.endsWith(`.${domain}`),
-          )
-        : host === "vimeo.com" || host.endsWith(".vimeo.com");
-    return valid ? url.toString() : null;
-  } catch {
-    return null;
-  }
-}
 
 function canAccessContributor(
   session: { role: string; user: { id: string } },
@@ -68,7 +39,7 @@ export async function GET(
   if (!isUuid(id)) return Response.json({ error: "Video not found." }, { status: 404 });
   const result = await db.query<VideoRow>(
     `
-      SELECT id, slug, title, description, provider, external_url, thumbnail_asset_id,
+      SELECT id, slug, title, description, provider, external_url, video_asset_id, thumbnail_asset_id,
         status, published_at, sort_order, created_by
       FROM cms_videos
       WHERE id = $1
@@ -96,27 +67,10 @@ export async function PATCH(
   const payload = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   if (!payload) return Response.json({ error: "Invalid JSON body." }, { status: 400 });
 
-  const title = String(payload.title ?? "").trim();
-  const slug = normalizeSlug(String(payload.slug || title));
-  const provider = parseProvider(payload.provider);
-  const externalUrl = parseProviderUrl(payload.externalUrl, provider);
-  const status = parseContentStatus(payload.status);
-  const thumbnailAssetId = payload.thumbnailAssetId ? String(payload.thumbnailAssetId) : null;
-  if (!title || !slug) {
-    return Response.json({ error: "Title and slug are required." }, { status: 400 });
-  }
-  if (!provider || !externalUrl) {
-    return Response.json(
-      { error: "Add a valid HTTPS YouTube or Vimeo URL for the selected provider." },
-      { status: 400 },
-    );
-  }
-  if (!status) return Response.json({ error: "Invalid publication status." }, { status: 400 });
-  if (session.role === "contributor" && !["draft", "review"].includes(status)) {
+  const parsed = parseVideoInput(payload);
+  if ("error" in parsed) return Response.json({ error: parsed.error }, { status: parsed.status });
+  if (session.role === "contributor" && !["draft", "review"].includes(parsed.status)) {
     return Response.json({ error: "Contributors cannot publish or archive videos." }, { status: 403 });
-  }
-  if (thumbnailAssetId && !isUuid(thumbnailAssetId)) {
-    return Response.json({ error: "Invalid thumbnail asset." }, { status: 400 });
   }
 
   const client = await db.connect();
@@ -124,7 +78,7 @@ export async function PATCH(
     await client.query("BEGIN");
     const existingResult = await client.query<VideoRow>(
       `
-        SELECT id, slug, title, description, provider, external_url, thumbnail_asset_id,
+        SELECT id, slug, title, description, provider, external_url, video_asset_id, thumbnail_asset_id,
           status, published_at, sort_order, created_by
         FROM cms_videos
         WHERE id = $1
@@ -142,23 +96,37 @@ export async function PATCH(
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const publishedAt = parsePublishedAt(payload.publishedAt, status, existing.published_at);
-    if (status === "published" && !publishedAt) {
+    const publishedAt = parsePublishedAt(payload.publishedAt, parsed.status, existing.published_at);
+    if (parsed.status === "published" && !publishedAt) {
       await client.query("ROLLBACK");
       return Response.json({ error: "Invalid publish date." }, { status: 400 });
     }
-    if (thumbnailAssetId) {
+    if (parsed.thumbnailAssetId) {
       const asset = await client.query(
         `
           SELECT id
           FROM cms_assets
           WHERE id = $1 AND status = 'ready' AND mime_type LIKE 'image/%'
         `,
-        [thumbnailAssetId],
+        [parsed.thumbnailAssetId],
       );
       if (!asset.rowCount) {
         await client.query("ROLLBACK");
         return Response.json({ error: "Thumbnail must be a ready image." }, { status: 422 });
+      }
+    }
+    if (parsed.videoAssetId) {
+      const asset = await client.query(
+        `
+          SELECT id
+          FROM cms_assets
+          WHERE id = $1 AND status = 'ready' AND mime_type LIKE 'video/%'
+        `,
+        [parsed.videoAssetId],
+      );
+      if (!asset.rowCount) {
+        await client.query("ROLLBACK");
+        return Response.json({ error: "Choose a ready video file." }, { status: 422 });
       }
     }
 
@@ -166,30 +134,25 @@ export async function PATCH(
       `
         UPDATE cms_videos
         SET slug = $2, title = $3, description = $4, provider = $5, external_url = $6,
-          thumbnail_asset_id = $7, status = $8, published_at = $9
+          video_asset_id = $7, thumbnail_asset_id = $8, status = $9, published_at = $10
         WHERE id = $1
       `,
       [
         id,
-        slug,
-        title,
-        optionalText(payload.description),
-        provider,
-        externalUrl,
-        thumbnailAssetId,
-        status,
+        parsed.slug,
+        parsed.title,
+        parsed.description,
+        parsed.provider,
+        parsed.externalUrl,
+        parsed.videoAssetId,
+        parsed.thumbnailAssetId,
+        parsed.status,
         publishedAt,
       ],
     );
     const afterState = {
       id,
-      slug,
-      title,
-      description: optionalText(payload.description),
-      provider,
-      externalUrl,
-      thumbnailAssetId,
-      status,
+      ...parsed,
       publishedAt,
       sortOrder: existing.sort_order,
       createdBy: existing.created_by,
@@ -204,7 +167,7 @@ export async function PATCH(
       [session.user.id, id, JSON.stringify(existing), JSON.stringify(afterState)],
     );
     await client.query("COMMIT");
-    return Response.json({ id, slug });
+    return Response.json({ id, slug: parsed.slug });
   } catch (error) {
     await client.query("ROLLBACK");
     if (error instanceof Error && "code" in error && error.code === "23505") {

@@ -12,6 +12,7 @@ type AssetRow = {
   id: string;
   original_name: string;
   object_key: string;
+  mime_type: string;
 };
 
 type VideoRow = {
@@ -19,8 +20,9 @@ type VideoRow = {
   slug: string;
   title: string;
   description: string | null;
-  provider: "youtube" | "vimeo";
-  external_url: string;
+  provider: "youtube" | "vimeo" | "upload";
+  external_url: string | null;
+  video_asset_id: string | null;
   thumbnail_asset_id: string | null;
   status: string;
   published_at: Date | null;
@@ -37,7 +39,7 @@ export default async function EditVideoPage({
   const [videoResult, assetResult] = await Promise.all([
     db.query<VideoRow>(
       `
-        SELECT id, slug, title, description, provider, external_url, thumbnail_asset_id,
+        SELECT id, slug, title, description, provider, external_url, video_asset_id, thumbnail_asset_id,
           status, published_at, created_by
         FROM cms_videos
         WHERE id = $1
@@ -47,9 +49,9 @@ export default async function EditVideoPage({
     ),
     db.query<AssetRow>(
       `
-        SELECT id, original_name, object_key
+        SELECT id, original_name, object_key, mime_type
         FROM cms_assets
-        WHERE status = 'ready' AND mime_type LIKE 'image/%'
+        WHERE status = 'ready' AND (mime_type LIKE 'image/%' OR mime_type LIKE 'video/%')
         ORDER BY created_at DESC
       `,
     ),
@@ -69,7 +71,8 @@ export default async function EditVideoPage({
     title: row.title,
     description: row.description ?? "",
     provider: row.provider,
-    externalUrl: row.external_url,
+    externalUrl: row.external_url ?? "",
+    videoAssetId: row.video_asset_id ?? "",
     thumbnailAssetId: row.thumbnail_asset_id ?? "",
     status: row.status,
     publishedAt: row.published_at?.toISOString() ?? "",
@@ -86,11 +89,20 @@ export default async function EditVideoPage({
       <div className="mt-8">
         <VideoEditor
           video={video}
-          assets={assetResult.rows.map((asset) => ({
-            id: asset.id,
-            filename: asset.original_name,
-            publicUrl: publicAssetUrl(asset.object_key),
-          }))}
+          assets={assetResult.rows
+            .filter((asset) => asset.mime_type.startsWith("image/"))
+            .map((asset) => ({
+              id: asset.id,
+              filename: asset.original_name,
+              publicUrl: publicAssetUrl(asset.object_key),
+            }))}
+          videoAssets={assetResult.rows
+            .filter((asset) => asset.mime_type.startsWith("video/"))
+            .map((asset) => ({
+              id: asset.id,
+              filename: asset.original_name,
+              publicUrl: publicAssetUrl(asset.object_key),
+            }))}
           canPublish={session.role !== "contributor"}
         />
       </div>

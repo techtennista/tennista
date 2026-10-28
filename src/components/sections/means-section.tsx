@@ -4,8 +4,8 @@ import { Container } from "@/components/ui/container";
 import { Reveal } from "@/components/ui/reveal";
 
 /**
- * "Tennis is the means" band. The supplied circle artwork and girl cutout
- * form one composition, which is clipped by the section's shallow lime edge.
+ * "Tennis is the means" band. The lime ring sits behind a girl cutout so her
+ * head breaks the circle, then the shallow lime wave clips the bottom edge.
  */
 export function MeansSection() {
   return (
@@ -33,17 +33,17 @@ export function MeansSection() {
         </Reveal>
       </Container>
 
-      <div className="pointer-events-none relative z-10 mt-4 ml-auto hidden aspect-[653/659] w-[min(100%,40.8125rem)] md:absolute md:top-[7.5rem] md:right-0 md:mt-0 md:block">
-        <img src="/image_bg_border.svg" alt="" className="absolute inset-0 h-full w-full" />
-        {/* <Image
-          src="/tennis-means-girl.png"
+      <div className="pointer-events-none relative z-10 mt-8 ml-auto aspect-[653/659] w-[min(100%,22rem)] overflow-visible sm:w-[min(100%,28rem)] md:absolute md:top-[10.5rem] md:right-0 md:mt-0 md:w-[min(100%,40.8125rem)]">
+        <img src="/tennis-means-circle.svg" alt="" className="absolute inset-0 h-full w-full" />
+        <Image
+          src="/tennis-means-girl-pop.png"
           alt="A smiling child"
-          width={753}
-          height={845}
+          width={643}
+          height={725}
           quality={100}
           unoptimized
-          className="absolute top-[-18%] left-[-7%] h-[128%] w-auto max-w-none"
-        /> */}
+          className="absolute top-[-12%] left-[8%] z-10 h-[118%] w-auto max-w-none"
+        />
       </div>
 
       <div
