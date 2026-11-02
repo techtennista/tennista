@@ -4,6 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { GalleryAssetOption } from "@/components/admin/gallery-editor";
 import { importGoogleMedia } from "@/components/admin/google-import";
+import {
+  slugifyTitle,
+  videoEmbedUrl,
+  youtubeThumbnailUrl,
+} from "@/lib/video-providers";
 
 export type EditableVideo = {
   id: string;
@@ -35,6 +40,7 @@ export function VideoEditor({
   const router = useRouter();
   const [title, setTitle] = useState(video?.title ?? "");
   const [slug, setSlug] = useState(video?.slug ?? "");
+  const [slugTouched, setSlugTouched] = useState(Boolean(video));
   const [description, setDescription] = useState(video?.description ?? "");
   const [provider, setProvider] = useState<"youtube" | "vimeo" | "upload">(video?.provider ?? "youtube");
   const [externalUrl, setExternalUrl] = useState(video?.externalUrl ?? "");
@@ -89,7 +95,7 @@ export function VideoEditor({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
-        slug,
+        slug: slug || slugifyTitle(title),
         description,
         provider,
         externalUrl: provider === "upload" ? null : externalUrl,
@@ -127,6 +133,14 @@ export function VideoEditor({
   }
 
   const thumbnail = assets.find((asset) => asset.id === thumbnailAssetId);
+  const embedSrc =
+    provider === "youtube" || provider === "vimeo"
+      ? videoEmbedUrl(provider, externalUrl)
+      : null;
+  const youtubeThumb =
+    !thumbnail && provider === "youtube" && externalUrl.trim()
+      ? youtubeThumbnailUrl(externalUrl)
+      : null;
 
   return (
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
@@ -139,13 +153,8 @@ export function VideoEditor({
               onChange={(event) => {
                 const nextTitle = event.target.value;
                 setTitle(nextTitle);
-                if (!video && !slug) {
-                  setSlug(
-                    nextTitle
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]+/g, "-")
-                      .replace(/^-|-$/g, ""),
-                  );
+                if (!video && !slugTouched) {
+                  setSlug(slugifyTitle(nextTitle));
                 }
               }}
               className={`${fieldClass} text-lg font-bold`}
@@ -156,7 +165,10 @@ export function VideoEditor({
             URL slug
             <input
               value={slug}
-              onChange={(event) => setSlug(event.target.value)}
+              onChange={(event) => {
+                setSlugTouched(true);
+                setSlug(slugifyTitle(event.target.value) || event.target.value.toLowerCase());
+              }}
               className={fieldClass}
               placeholder="video-url-slug"
             />
@@ -222,6 +234,17 @@ export function VideoEditor({
               </select>
             </label>
           ) : null}
+          {embedSrc ? (
+            <div className="mt-5 overflow-hidden rounded-[0.85rem] border border-blue/10 bg-black">
+              <iframe
+                title="Video preview"
+                src={embedSrc}
+                className="aspect-video w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : null}
         </section>
       </div>
 
@@ -273,9 +296,18 @@ export function VideoEditor({
 
         <section className="rounded-[1rem] border border-blue/10 bg-white p-5">
           <h2 className="font-bold text-blue">Thumbnail</h2>
+          <p className="mt-2 text-xs leading-relaxed text-gray">
+            Leave blank to use the YouTube or Vimeo thumbnail automatically.
+          </p>
           {thumbnail ? (
             <img
               src={thumbnail.publicUrl}
+              alt=""
+              className="mt-4 aspect-video w-full rounded-[0.65rem] object-cover"
+            />
+          ) : youtubeThumb ? (
+            <img
+              src={youtubeThumb}
               alt=""
               className="mt-4 aspect-video w-full rounded-[0.65rem] object-cover"
             />
@@ -286,7 +318,11 @@ export function VideoEditor({
             className={fieldClass}
             aria-label="Thumbnail image"
           >
-            <option value="">No thumbnail</option>
+            <option value="">
+              {provider === "youtube" || provider === "vimeo"
+                ? "Use provider thumbnail"
+                : "No thumbnail"}
+            </option>
             {assets.map((asset) => (
               <option key={asset.id} value={asset.id}>
                 {asset.filename}

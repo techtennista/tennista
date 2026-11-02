@@ -4,6 +4,7 @@ import { cache } from "react";
 import type { MediaStory, PhotoFeedItem } from "@/components/sections/media-hub";
 import { db } from "@/lib/db";
 import { publicAssetUrl } from "@/lib/storage";
+import { videoEmbedUrl } from "@/lib/video-providers";
 
 export const PHOTO_PAGE_SIZE = 16;
 
@@ -105,12 +106,13 @@ export const getPublishedPhotos = cache(async (): Promise<PhotoFeedItem[]> => {
 export const getPublishedVideos = cache(async (): Promise<MediaStory[]> => {
   const result = await db.query<{
     title: string;
+    provider: "youtube" | "vimeo" | "upload";
     external_url: string | null;
     video_object_key: string | null;
     thumbnail_object_key: string | null;
   }>(
     `
-      SELECT v.title, v.external_url, video.object_key AS video_object_key,
+      SELECT v.title, v.provider, v.external_url, video.object_key AS video_object_key,
         thumbnail.object_key AS thumbnail_object_key
       FROM cms_videos v
       LEFT JOIN cms_assets video ON video.id = v.video_asset_id
@@ -122,14 +124,23 @@ export const getPublishedVideos = cache(async (): Promise<MediaStory[]> => {
   );
 
   return result.rows.flatMap((video) => {
-    const href = video.external_url || (video.video_object_key ? publicAssetUrl(video.video_object_key) : "");
-    if (!href) return [];
+    const fileUrl = video.video_object_key ? publicAssetUrl(video.video_object_key) : "";
+    const embedSrc =
+      video.provider === "youtube" || video.provider === "vimeo"
+        ? video.external_url
+          ? videoEmbedUrl(video.provider, video.external_url)
+          : null
+        : fileUrl || null;
+    const href = video.external_url || fileUrl;
+    if (!embedSrc && !href) return [];
     return [{
       title: video.title,
       image: video.thumbnail_object_key
         ? publicAssetUrl(video.thumbnail_object_key)
         : "/junior-tennis-open-cover.jpg",
-      href,
+      href: href || embedSrc || "#",
+      provider: video.provider,
+      embedSrc: embedSrc || undefined,
     }];
   });
 });

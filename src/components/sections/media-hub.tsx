@@ -15,7 +15,14 @@ const tabs = [
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
-export type MediaStory = { title: string; image: string; href: string; date?: string };
+export type MediaStory = {
+  title: string;
+  image: string;
+  href: string;
+  date?: string;
+  provider?: "youtube" | "vimeo" | "upload";
+  embedSrc?: string;
+};
 export type PhotoFeedItem = MediaStory & { id: string };
 export type PhotoFeed = {
   items: PhotoFeedItem[];
@@ -462,20 +469,7 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStor
 
   if (tab === "videos") {
     if (stories.length) {
-      return (
-        <FadeGrid className="mx-auto grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {stories.map((video) => (
-            <a key={video.href} href={video.href} target="_blank" rel="noreferrer noopener" className="group relative block">
-              <img src={video.image} alt="" className="aspect-video w-full rounded-[1rem] bg-blue-tint object-cover" />
-              <span className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-blue transition group-hover:scale-110">
-                <svg viewBox="0 0 24 24" className="ml-0.5 size-5" fill="currentColor" aria-hidden><path d="M8 6.5v11l9-5.5-9-5.5z" /></svg>
-                <span className="sr-only">Play {video.title}</span>
-              </span>
-              <h2 className="mt-3 font-bold text-blue">{video.title}</h2>
-            </a>
-          ))}
-        </FadeGrid>
-      );
+      return <VideoGalleryGrid stories={stories} />;
     }
     return (
       <FadeGrid className="mx-auto grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -509,6 +503,115 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStor
         </article>
       ))}
     </FadeGrid>
+  );
+}
+
+function withAutoplay(src: string) {
+  try {
+    const url = new URL(src);
+    url.searchParams.set("autoplay", "1");
+    return url.toString();
+  } catch {
+    return src;
+  }
+}
+
+function VideoGalleryGrid({ stories }: { stories: readonly MediaStory[] }) {
+  const [active, setActive] = useState<MediaStory | null>(null);
+
+  useEffect(() => {
+    if (!active) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActive(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [active]);
+
+  return (
+    <>
+      <FadeGrid className="mx-auto grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {stories.map((video) => (
+          <button
+            key={`${video.title}:${video.embedSrc ?? video.href}`}
+            type="button"
+            onClick={() => setActive(video)}
+            className="group relative block w-full cursor-pointer text-left"
+          >
+            <img src={video.image} alt="" className="aspect-video w-full rounded-[1rem] bg-blue-tint object-cover" />
+            <span className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-blue transition group-hover:scale-110">
+              <svg viewBox="0 0 24 24" className="ml-0.5 size-5" fill="currentColor" aria-hidden>
+                <path d="M8 6.5v11l9-5.5-9-5.5z" />
+              </svg>
+              <span className="sr-only">Play {video.title}</span>
+            </span>
+            <h2 className="mt-3 font-bold text-blue">{video.title}</h2>
+          </button>
+        ))}
+      </FadeGrid>
+
+      {active ? (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-blue/70 p-4 backdrop-blur-[2px] sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label={active.title}
+          onClick={() => setActive(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl overflow-hidden rounded-[1rem] bg-black shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-4 bg-blue px-4 py-3 text-white">
+              <h3 className="truncate text-sm font-bold sm:text-base">{active.title}</h3>
+              <button
+                type="button"
+                onClick={() => setActive(null)}
+                className="cursor-pointer rounded-full px-3 py-1 text-sm font-bold hover:bg-white/10"
+              >
+                Close
+              </button>
+            </div>
+            <div className="aspect-video w-full bg-black">
+              {active.provider === "upload" && (active.embedSrc || active.href) ? (
+                <video
+                  key={active.embedSrc ?? active.href}
+                  src={active.embedSrc ?? active.href}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="h-full w-full"
+                />
+              ) : active.embedSrc ? (
+                <iframe
+                  key={active.embedSrc}
+                  title={active.title}
+                  src={withAutoplay(active.embedSrc)}
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="grid h-full place-items-center px-6 text-center text-sm text-white/80">
+                  <p>
+                    This video can’t be embedded.{" "}
+                    <a href={active.href} target="_blank" rel="noreferrer noopener" className="underline">
+                      Open it instead
+                    </a>
+                    .
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
 

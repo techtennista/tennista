@@ -2,6 +2,7 @@ import { getAdminSession } from "@/lib/admin-session";
 import { isContributorEditable, isUuid, parsePublishedAt } from "@/lib/admin-content";
 import { parseVideoInput, type VideoProvider } from "@/lib/admin-videos";
 import { db } from "@/lib/db";
+import { ensureProviderThumbnailAsset } from "@/lib/provider-thumbnail";
 
 type VideoRow = {
   id: string;
@@ -101,19 +102,37 @@ export async function PATCH(
       await client.query("ROLLBACK");
       return Response.json({ error: "Invalid publish date." }, { status: 400 });
     }
-    if (parsed.thumbnailAssetId) {
+    let thumbnailAssetId = parsed.thumbnailAssetId;
+    if (thumbnailAssetId) {
       const asset = await client.query(
         `
           SELECT id
           FROM cms_assets
           WHERE id = $1 AND status = 'ready' AND mime_type LIKE 'image/%'
         `,
-        [parsed.thumbnailAssetId],
+        [thumbnailAssetId],
       );
       if (!asset.rowCount) {
         await client.query("ROLLBACK");
         return Response.json({ error: "Thumbnail must be a ready image." }, { status: 422 });
       }
+    } else if (
+      !existing.thumbnail_asset_id ||
+      existing.external_url !== parsed.externalUrl ||
+      existing.provider !== parsed.provider
+    ) {
+      thumbnailAssetId = await ensureProviderThumbnailAsset({
+        client,
+        provider: parsed.provider,
+        externalUrl: parsed.externalUrl,
+        title: parsed.title,
+        uploadedBy: session.user.id,
+      });
+      if (!thumbnailAssetId) {
+        thumbnailAssetId = existing.thumbnail_asset_id;
+      }
+    } else {
+      thumbnailAssetId = existing.thumbnail_asset_id;
     }
     if (parsed.videoAssetId) {
       const asset = await client.query(
@@ -145,7 +164,7 @@ export async function PATCH(
         parsed.provider,
         parsed.externalUrl,
         parsed.videoAssetId,
-        parsed.thumbnailAssetId,
+        thumbnailAssetId,
         parsed.status,
         publishedAt,
       ],
@@ -153,6 +172,7 @@ export async function PATCH(
     const afterState = {
       id,
       ...parsed,
+      thumbnailAssetId,
       publishedAt,
       sortOrder: existing.sort_order,
       createdBy: existing.created_by,

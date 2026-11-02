@@ -1,6 +1,7 @@
 import { getAdminSession } from "@/lib/admin-session";
 import { parseVideoInput } from "@/lib/admin-videos";
 import { db } from "@/lib/db";
+import { ensureProviderThumbnailAsset } from "@/lib/provider-thumbnail";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -33,23 +34,31 @@ export async function POST(request: Request) {
   }
 
   const id = crypto.randomUUID();
-  const afterState = { id, ...parsed };
   const client = await db.connect();
   try {
     await client.query("BEGIN");
-    if (parsed.thumbnailAssetId) {
+    let thumbnailAssetId = parsed.thumbnailAssetId;
+    if (thumbnailAssetId) {
       const asset = await client.query(
         `
           SELECT id
           FROM cms_assets
           WHERE id = $1 AND status = 'ready' AND mime_type LIKE 'image/%'
         `,
-        [parsed.thumbnailAssetId],
+        [thumbnailAssetId],
       );
       if (!asset.rowCount) {
         await client.query("ROLLBACK");
         return Response.json({ error: "Thumbnail must be a ready image." }, { status: 422 });
       }
+    } else {
+      thumbnailAssetId = await ensureProviderThumbnailAsset({
+        client,
+        provider: parsed.provider,
+        externalUrl: parsed.externalUrl,
+        title: parsed.title,
+        uploadedBy: session.user.id,
+      });
     }
     if (parsed.videoAssetId) {
       const asset = await client.query(
@@ -65,6 +74,7 @@ export async function POST(request: Request) {
         return Response.json({ error: "Choose a ready video file." }, { status: 422 });
       }
     }
+    const afterState = { id, ...parsed, thumbnailAssetId };
     await client.query(
       `
         INSERT INTO cms_videos (
@@ -81,7 +91,7 @@ export async function POST(request: Request) {
         parsed.provider,
         parsed.externalUrl,
         parsed.videoAssetId,
-        parsed.thumbnailAssetId,
+        thumbnailAssetId,
         parsed.status,
         parsed.publishedAt,
         session.user.id,
