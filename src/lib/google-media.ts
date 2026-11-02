@@ -90,16 +90,16 @@ export async function resolveGoogleMedia(url: string): Promise<{
   }
 
   if (parsed.kind === "photos-album") {
-    const albumUrl = await resolvePhotosAlbumUrl(parsed.url);
-    const photos = await listPhotosAlbum(albumUrl);
+    const album = await openPhotosAlbum(parsed.url);
+    const photos = album.photos;
     if (!photos.length) {
       throw new GoogleMediaError(
-        "No photos were found in that album. In Google Photos, open Share → General access and set it to “Anyone with the link”, then try again.",
+        "We opened that Google Photos link, but no photos were readable from it. Re-copy the album share link from Google Photos → Share → Create link, make sure link sharing stays on, and paste it again.",
       );
     }
     return {
-      source: { kind: "photos-album", url: albumUrl },
-      title: titleFromUrl(albumUrl, "Google Photos album"),
+      source: { kind: "photos-album", url: album.url },
+      title: album.title || titleFromUrl(album.url, "Google Photos album"),
       items: photos.map((photo, index) => {
         const { downloadUrl, width, height } = sizedPhoto(photo);
         return {
@@ -181,32 +181,106 @@ function sizedPhoto(photo: { url: string; width: number; height: number }) {
   };
 }
 
-async function resolvePhotosAlbumUrl(url: string) {
-  if (url.includes("photos.google.com/share") || url.includes("photos.google.com/album")) {
-    return url;
-  }
-  const response = await fetch(url, {
-    cache: "no-store",
-    headers: { "User-Agent": BROWSER_UA },
-    redirect: "follow",
-    signal: AbortSignal.timeout(15_000),
-  });
-  return response.url || url;
-}
+type OpenedAlbum = {
+  url: string;
+  title: string;
+  photos: Array<{ uid: string; url: string; width: number; height: number }>;
+};
 
-async function listPhotosAlbum(albumUrl: string) {
-  const fromHtml = await listPhotosFromHtml(albumUrl);
-  if (fromHtml.length) return fromHtml;
+async function openPhotosAlbum(url: string): Promise<OpenedAlbum> {
+  const resolvedUrl = await resolvePhotosAlbumUrl(url);
+  const fromHtml = await listPhotosFromHtml(resolvedUrl);
+  if (fromHtml.photos.length) {
+    return { url: resolvedUrl, title: fromHtml.title, photos: fromHtml.photos };
+  }
+
   try {
     const fetchImageUrls =
       GooglePhotosAlbum.fetchImageUrls ??
       (GooglePhotosAlbum as { default?: { fetchImageUrls?: typeof GooglePhotosAlbum.fetchImageUrls } }).default
         ?.fetchImageUrls;
-    const photos = (await fetchImageUrls?.(albumUrl)) ?? [];
-    return photos.filter((photo) => photo?.url);
+    const photos = ((await fetchImageUrls?.(resolvedUrl)) ?? []).filter((photo) => photo?.url);
+    if (photos.length) {
+      return {
+        url: resolvedUrl,
+        title: fromHtml.title || titleFromUrl(resolvedUrl, "Google Photos album"),
+        photos,
+      };
+    }
   } catch {
-    return [];
+    // Fall through to the empty result.
   }
+
+  return { url: resolvedUrl, title: fromHtml.title, photos: [] };
+}
+
+async function resolvePhotosAlbumUrl(url: string) {
+  if (url.includes("photos.google.com/share") || url.includes("photos.google.com/album")) {
+    return url;
+  }
+
+  const short = new URL(url);
+  if (!short.searchParams.has("_imcp") && !short.searchParams.has("_iipp")) {
+    short.searchParams.set("_imcp", "1");
+  }
+
+  const followed = await followRedirects(short.toString());
+  if (followed.url.includes("photos.google.com/share") || followed.url.includes("photos.google.com/album")) {
+    return followed.url;
+  }
+
+  const desktopLink = followed.html.match(/data-desktop-link="([^"]+)"/)?.[1];
+  if (desktopLink) {
+    const continueUrl = new URL(desktopLink, followed.url);
+    if (!continueUrl.searchParams.has("_imcp")) continueUrl.searchParams.set("_imcp", "1");
+    const again = await followRedirects(continueUrl.toString(), followed.cookies);
+    if (again.url.includes("photos.google.com/share") || again.url.includes("photos.google.com/album")) {
+      return again.url;
+    }
+  }
+
+  const embeddedShare = followed.html.match(
+    /https:\/\/photos\.google\.com\/(?:share|album)\/[^"'\\\s]+/,
+  )?.[0];
+  if (embeddedShare) return embeddedShare.replace(/&amp;/g, "&");
+
+  return followed.url || url;
+}
+
+async function followRedirects(startUrl: string, initialCookies: string[] = []) {
+  let current = startUrl;
+  const cookies = [...initialCookies];
+  let html = "";
+  for (let hop = 0; hop < 8; hop += 1) {
+    const response = await fetch(current, {
+      cache: "no-store",
+      redirect: "manual",
+      headers: {
+        "User-Agent": BROWSER_UA,
+        Accept: "text/html,application/xhtml+xml",
+        "Accept-Language": "en-US,en;q=0.9",
+        Cookie: cookies.join("; "),
+        Referer: "https://photos.app.goo.gl/",
+      },
+      signal: AbortSignal.timeout(20_000),
+    });
+    const setCookies =
+      typeof response.headers.getSetCookie === "function"
+        ? response.headers.getSetCookie()
+        : [];
+    for (const cookie of setCookies) {
+      const pair = cookie.split(";")[0]?.trim();
+      if (pair) cookies.push(pair);
+    }
+    const location = response.headers.get("location");
+    if (location) {
+      current = new URL(location, current).toString();
+      continue;
+    }
+    html = await response.text();
+    return { url: current, html, cookies };
+  }
+  return { url: current, html, cookies };
 }
 
 async function listPhotosFromHtml(albumUrl: string) {
@@ -215,15 +289,21 @@ async function listPhotosFromHtml(albumUrl: string) {
     headers: {
       "User-Agent": BROWSER_UA,
       Accept: "text/html,application/xhtml+xml",
+      "Accept-Language": "en-US,en;q=0.9",
+      Referer: "https://photos.app.goo.gl/",
     },
     redirect: "follow",
     signal: AbortSignal.timeout(20_000),
   });
-  if (!response.ok) return [];
+  if (!response.ok) return { title: "", photos: [] };
   const html = await response.text();
+  const title =
+    html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i)?.[1]?.replace(/\s*-\s*Google Photos$/i, "").trim() ||
+    html.match(/<title>([^<]+)<\/title>/i)?.[1]?.replace(/\s*-\s*Google Photos$/i, "").trim() ||
+    "";
   const structured = parsePhotosFromInitData(html);
-  if (structured.length) return structured;
-  return parsePhotosFromRawUrls(html);
+  if (structured.length) return { title, photos: structured };
+  return { title, photos: parsePhotosFromRawUrls(html) };
 }
 
 function parsePhotosFromInitData(html: string) {
