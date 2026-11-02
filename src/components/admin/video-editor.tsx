@@ -260,7 +260,15 @@ export function VideoEditor({
           >
             {saving ? "Saving…" : video ? "Save changes" : "Create video"}
           </button>
-          {message ? <p className="mt-3 text-sm font-medium text-red-600">{message}</p> : null}
+          {message ? (
+            <p
+              role="alert"
+              aria-live="assertive"
+              className="mt-3 rounded-[0.75rem] border border-red-200 bg-red-50 px-3 py-3 text-sm font-medium leading-relaxed text-red-700"
+            >
+              {message}
+            </p>
+          ) : null}
         </section>
 
         <section className="rounded-[1rem] border border-blue/10 bg-white p-5">

@@ -17,9 +17,33 @@ type Asset = {
   createdAt: string;
 };
 
+type Feedback = {
+  tone: "error" | "success" | "info";
+  text: string;
+};
+
 function fileSize(bytes: number) {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function FeedbackBanner({ feedback }: { feedback: Feedback | null }) {
+  if (!feedback) return null;
+  const styles =
+    feedback.tone === "error"
+      ? "border-red-200 bg-red-50 text-red-700"
+      : feedback.tone === "success"
+        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+        : "border-blue/15 bg-blue-tint text-blue";
+  return (
+    <p
+      role={feedback.tone === "error" ? "alert" : "status"}
+      aria-live={feedback.tone === "error" ? "assertive" : "polite"}
+      className={`mt-4 rounded-[0.75rem] border px-3 py-3 text-sm font-medium leading-relaxed ${styles}`}
+    >
+      {feedback.text}
+    </p>
+  );
 }
 
 async function imageDimensions(file: File) {
@@ -44,7 +68,9 @@ export function MediaLibrary() {
   const [createGallery, setCreateGallery] = useState(true);
   const [pending, setPending] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [message, setMessage] = useState("");
+  const [importFeedback, setImportFeedback] = useState<Feedback | null>(null);
+  const [uploadFeedback, setUploadFeedback] = useState<Feedback | null>(null);
+  const [libraryFeedback, setLibraryFeedback] = useState<Feedback | null>(null);
 
   const loadAssets = useCallback(async () => {
     const response = await fetch("/api/admin/media");
@@ -55,33 +81,46 @@ export function MediaLibrary() {
 
   useEffect(() => {
     loadAssets().catch((error: unknown) => {
-      setMessage(error instanceof Error ? error.message : "Unable to load media.");
+      setLibraryFeedback({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Unable to load media.",
+      });
     });
   }, [loadAssets]);
 
   async function importFromGoogle() {
     if (!googleUrl.trim()) return;
     setImporting(true);
-    setMessage("");
+    setImportFeedback({ tone: "info", text: "Reading the Google link…" });
     try {
       const result = await importGoogleMedia({
         url: googleUrl.trim(),
         title: googleTitle.trim() || undefined,
         createGallery,
         onProgress: (imported, total) => {
-          setMessage(`Importing ${imported} of ${total}…`);
+          setImportFeedback({
+            tone: "info",
+            text: `Importing ${imported} of ${total}… This can take a minute for large albums.`,
+          });
         },
       });
       const extra = result.failures.length ? ` ${result.failures.length} file(s) were skipped.` : "";
-      setMessage(
-        result.galleryId
+      setImportFeedback({
+        tone: "success",
+        text: result.galleryId
           ? `Imported ${result.assets.length} file(s) and created a gallery.${extra}`
           : `Imported ${result.assets.length} file(s).${extra}`,
-      );
+      });
       setGoogleUrl("");
       await loadAssets();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to import that Google link.");
+      setImportFeedback({
+        tone: "error",
+        text:
+          error instanceof Error
+            ? error.message
+            : "Unable to import that Google link. Check that it is shared publicly and try again.",
+      });
     } finally {
       setImporting(false);
     }
@@ -100,13 +139,17 @@ export function MediaLibrary() {
         <h2 className="headline text-[1.5rem] leading-none text-blue">Paste a Google link</h2>
         <p className="mt-3 text-sm leading-relaxed text-gray">
           Drop in a public Google Photos album, Drive file, or Drive folder. Photos and videos are copied into the library.
+          The link must be shared as “Anyone with the link”.
         </p>
         <label className="mt-5 block">
           <span className="text-sm font-bold text-blue">Google Drive or Photos URL</span>
           <input
             type="url"
             value={googleUrl}
-            onChange={(event) => setGoogleUrl(event.target.value)}
+            onChange={(event) => {
+              setGoogleUrl(event.target.value);
+              if (importFeedback?.tone === "error") setImportFeedback(null);
+            }}
             placeholder="https://photos.app.goo.gl/… or https://drive.google.com/…"
             className="mt-2 h-11 w-full rounded-[0.65rem] border border-blue/15 px-3 text-sm text-gray outline-none focus:border-blue-bright"
             required
@@ -137,9 +180,7 @@ export function MediaLibrary() {
         >
           {importing ? "Importing…" : "Import from Google"}
         </button>
-        <p aria-live="polite" className="mt-4 min-h-5 text-sm font-medium text-blue">
-          {importing || googleUrl ? message : ""}
-        </p>
+        <FeedbackBanner feedback={importFeedback} />
       </form>
       <form
         className="rounded-[1rem] border border-blue/10 bg-white p-5"
@@ -147,12 +188,12 @@ export function MediaLibrary() {
           event.preventDefault();
           if (!file) return;
           if (file.type.startsWith("image/") && !altText.trim()) {
-            setMessage("Add alt text before uploading an image.");
+            setUploadFeedback({ tone: "error", text: "Add alt text before uploading an image." });
             return;
           }
 
           setPending(true);
-          setMessage("");
+          setUploadFeedback({ tone: "info", text: "Uploading…" });
           try {
             const presignResponse = await fetch("/api/admin/media/presign", {
               method: "POST",
@@ -199,12 +240,15 @@ export function MediaLibrary() {
             setFile(null);
             setAltText("");
             setCaption("");
-            setMessage("Original file uploaded successfully.");
+            setUploadFeedback({ tone: "success", text: "Original file uploaded successfully." });
             const input = event.currentTarget.elements.namedItem("asset") as HTMLInputElement | null;
             if (input) input.value = "";
             await loadAssets();
           } catch (error) {
-            setMessage(error instanceof Error ? error.message : "Unable to upload media.");
+            setUploadFeedback({
+              tone: "error",
+              text: error instanceof Error ? error.message : "Unable to upload media.",
+            });
           } finally {
             setPending(false);
           }
@@ -221,7 +265,10 @@ export function MediaLibrary() {
             type="file"
             required
             accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime,application/pdf"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            onChange={(event) => {
+              setFile(event.target.files?.[0] ?? null);
+              if (uploadFeedback?.tone === "error") setUploadFeedback(null);
+            }}
             className="mt-2 block w-full cursor-pointer rounded-[0.65rem] border border-blue/15 bg-blue-tint p-3 text-sm text-gray file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-blue file:px-4 file:py-2 file:font-bold file:text-white"
           />
         </label>
@@ -250,9 +297,7 @@ export function MediaLibrary() {
         >
           {pending ? "Uploading…" : "Upload file"}
         </button>
-        <p aria-live="polite" className="mt-4 min-h-5 text-sm font-medium text-blue">
-          {!importing ? message : ""}
-        </p>
+        <FeedbackBanner feedback={uploadFeedback} />
       </form>
       </div>
 
@@ -261,6 +306,7 @@ export function MediaLibrary() {
           <h2 className="headline text-[1.5rem] leading-none text-blue">Media library</h2>
           <span className="text-sm font-semibold text-gray">{assets.length} assets</span>
         </div>
+        <FeedbackBanner feedback={libraryFeedback} />
         <div className="mt-4 grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
           {assets.map((asset) => (
             <article key={asset.id} className="overflow-hidden rounded-[1rem] border border-blue/10 bg-white">

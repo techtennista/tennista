@@ -74,8 +74,10 @@ export function CourtManager({
   const [city, setCity] = useState("");
   const [importing, setImporting] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<"error" | "success" | "info">("info");
   const [creating, setCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState("");
+  const [createTone, setCreateTone] = useState<"error" | "success" | "info">("info");
   const [newCourt, setNewCourt] = useState({
     name: "",
     address: "",
@@ -92,6 +94,7 @@ export function CourtManager({
   async function importCourts() {
     setImporting(true);
     setMessage("");
+    setMessageTone("info");
     try {
       const response = await fetch("/api/admin/courts/import", {
         method: "POST",
@@ -105,9 +108,11 @@ export function CourtManager({
         duplicates?: number;
       };
       if (!response.ok) throw new Error(result.error ?? "Import failed.");
+      setMessageTone("success");
       setMessage(`Found ${result.found}; added ${result.imported} for review and skipped ${result.duplicates} existing records.`);
       router.refresh();
     } catch (error) {
+      setMessageTone("error");
       setMessage(error instanceof Error ? error.message : "Import failed.");
     } finally {
       setImporting(false);
@@ -161,6 +166,7 @@ export function CourtManager({
     }
 
     if (newCourt.googleUrl.trim()) {
+      setCreateTone("info");
       setCreateMessage("Importing the court photo from Google…");
       const imported = await importGoogleMedia({
         url: newCourt.googleUrl.trim(),
@@ -176,10 +182,12 @@ export function CourtManager({
 
   async function createCourt() {
     if (!newCourt.name.trim() || !newCourt.address.trim() || !newCourt.city.trim() || !newCourt.state.trim()) {
+      setCreateTone("error");
       setCreateMessage("Name, address, city, and state are required.");
       return;
     }
     setCreating(true);
+    setCreateTone("info");
     setCreateMessage("");
     try {
       const image = await uploadCourtImage();
@@ -212,13 +220,33 @@ export function CourtManager({
         file: null,
         publish: canPublish,
       });
+      setCreateTone("success");
       setCreateMessage("Location saved.");
       router.refresh();
     } catch (error) {
+      setCreateTone("error");
       setCreateMessage(error instanceof Error ? error.message : "Unable to create that location.");
     } finally {
       setCreating(false);
     }
+  }
+
+  function statusBanner(tone: "error" | "success" | "info", text: string) {
+    const styles =
+      tone === "error"
+        ? "border-red-200 bg-red-50 text-red-700"
+        : tone === "success"
+          ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+          : "border-blue/15 bg-blue-tint text-blue";
+    return (
+      <p
+        role={tone === "error" ? "alert" : "status"}
+        aria-live={tone === "error" ? "assertive" : "polite"}
+        className={`mt-3 rounded-[0.75rem] border px-3 py-3 text-sm font-medium leading-relaxed ${styles}`}
+      >
+        {text}
+      </p>
+    );
   }
 
   return (
@@ -318,7 +346,7 @@ export function CourtManager({
         >
           {creating ? "Saving location…" : "Create location"}
         </button>
-        {createMessage ? <p className="mt-3 text-sm leading-5 text-blue/65">{createMessage}</p> : null}
+        {createMessage ? statusBanner(createTone, createMessage) : null}
       </section>
       {canImport ? (
         <section className="rounded-2xl border border-[#dce4f0] bg-white p-5 shadow-sm">
@@ -339,7 +367,7 @@ export function CourtManager({
           <button type="button" onClick={importCourts} disabled={importing || !country.trim() || !state.trim()} className="mt-5 w-full cursor-pointer rounded-full bg-blue px-5 py-3 text-sm font-bold text-white hover:bg-[#123e96] disabled:cursor-wait disabled:opacity-50">
             {importing ? "Searching OpenStreetMap…" : "Find courts to review"}
           </button>
-          {message ? <p className="mt-3 text-sm leading-5 text-blue/65">{message}</p> : null}
+          {message ? statusBanner(messageTone, message) : null}
         </section>
       ) : null}
       </div>

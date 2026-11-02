@@ -94,7 +94,7 @@ export async function resolveGoogleMedia(url: string): Promise<{
     const photos = await listPhotosAlbum(albumUrl);
     if (!photos.length) {
       throw new GoogleMediaError(
-        "No photos were found. The album must be shared as “Anyone with the link”.",
+        "No photos were found in that album. In Google Photos, open Share → General access and set it to “Anyone with the link”, then try again.",
       );
     }
     return {
