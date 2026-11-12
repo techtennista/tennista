@@ -7,7 +7,14 @@ import { cn } from "@/lib/utils";
  *
  *   <WaveDivider variant="swoop" className="text-blue" />
  */
-export type WaveVariant = "wave" | "hump" | "swoop" | "crest" | "valley" | "hairline";
+export type WaveVariant =
+  | "wave"
+  | "hump"
+  | "swoop"
+  | "crest"
+  | "valley"
+  | "footer"
+  | "hairline";
 
 const paths: Record<WaveVariant, string> = {
   // Gentle double curve — the workhorse separator.
@@ -15,12 +22,18 @@ const paths: Record<WaveVariant, string> = {
   // Single crest: low at both edges, high through the middle.
   hump: "M0,108 C220,112 460,72 720,68 C980,64 1220,88 1440,104 L1440,140 L0,140 Z",
   // Deeper single sweep rising from the left.
-  swoop: "M0,112 C300,16 700,2 1080,44 C1240,62 1350,86 1440,104 L1440,140 L0,140 Z",
+  swoop:
+    "M0,112 C300,16 700,2 1080,44 C1240,62 1350,86 1440,104 L1440,140 L0,140 Z",
   // Shallow lift, used right above the oversized wordmark.
-  crest: "M0,118 C280,70 760,52 1120,74 C1260,82 1360,98 1440,112 L1440,140 L0,140 Z",
+  crest:
+    "M0,118 C280,70 760,52 1120,74 C1260,82 1360,98 1440,112 L1440,140 L0,140 Z",
   // Inverse of the crest: deep at the edges, thin through the middle,
   // so a blue band bows outward along its bottom edge.
-  valley: "M0,72 C260,104 560,134 720,136 C880,134 1180,104 1440,64 L1440,140 L0,140 Z",
+  valley:
+    "M0,72 C260,104 560,134 720,136 C880,134 1180,104 1440,64 L1440,140 L0,140 Z",
+  // Wide, shallow downward curve matching the footer design.
+  footer:
+    "M0,88 C260,118 520,140 720,132 C930,124 1160,78 1440,96 L1440,140 L0,140 Z",
   // Thin drawn line rather than a filled shape.
   hairline: "M0,116 C300,62 780,44 1140,68 C1270,77 1365,94 1440,108",
 };
@@ -33,7 +46,11 @@ type WaveDividerProps = {
   className?: string;
 };
 
-export function WaveDivider({ variant = "wave", edge = "bottom", className }: WaveDividerProps) {
+export function WaveDivider({
+  variant = "wave",
+  edge = "bottom",
+  className,
+}: WaveDividerProps) {
   const isLine = variant === "hairline";
 
   return (
