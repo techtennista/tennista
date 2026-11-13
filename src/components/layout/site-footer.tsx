@@ -19,28 +19,34 @@ export function SiteFooter() {
   return (
     <footer className="relative">
       {/* Newsletter sits in from the edges, with white space around the lime panel. */}
-      <section aria-labelledby="newsletter-heading" className="bg-white px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8">
+      <section
+        aria-labelledby="newsletter-heading"
+        className="bg-white px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8"
+      >
         <Reveal className="rounded-[1.75rem] bg-lime px-6 pt-12 pb-28 sm:px-10 sm:pt-14 lg:px-14 lg:pt-16 lg:pb-32">
           <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
-              <div>
-                <h2 id="newsletter-heading" className="headline text-display-lg text-blue">
-                  <span className="block">Subscribe to</span>
-                  <span className="block">our newsletter</span>
-                </h2>
-                <p className="mt-5 max-w-sm text-[0.9375rem] leading-normal font-medium text-blue-dark/80">
-                  We&apos;d love to keep you posted on new programs, the kids we&apos;re working with, and how
-                  you can be part of it.
-                </p>
-              </div>
-              <NewsletterForm />
+            <div>
+              <h2
+                id="newsletter-heading"
+                className="headline text-display-lg text-blue"
+              >
+                <span className="block">Subscribe to</span>
+                <span className="block">our newsletter</span>
+              </h2>
+              <p className="mt-5 max-w-sm text-[0.9375rem] leading-normal font-medium text-blue-dark/80">
+                We&apos;d love to keep you posted on new programs, the kids
+                we&apos;re working with, and how you can be part of it.
+              </p>
             </div>
+            <NewsletterForm />
+          </div>
         </Reveal>
       </section>
 
       {/* Link columns. The crest is full width and overlaps the lime panel. */}
       <div className="relative bg-blue text-white">
         <WaveDivider
-          variant="hump"
+          variant="footer"
           className="absolute inset-x-0 bottom-full z-10 h-16 text-blue sm:h-20"
         />
         <div className="w-full px-6 sm:px-8 lg:px-12">
@@ -48,10 +54,12 @@ export function SiteFooter() {
             <RevealItem>
               <BrandLockup />
               <p className="mt-6 max-w-sm text-[0.875rem] leading-relaxed text-white/80">
-                The {siteConfig.name} is a 501(c)(3) non-profit organization focused on empowering youth
-                through sport-based development initiatives that blend tennis with education and life skills
-                programs. As a registered non-profit (EIN: {siteConfig.ein}), all donations are tax-deductible
-                under U.S. law. Thank you for supporting our mission to empower young people through tennis.
+                The {siteConfig.name} is a 501(c)(3) non-profit organization
+                focused on empowering youth through sport-based development
+                initiatives that blend tennis with education and life skills
+                programs. As a registered non-profit (EIN: {siteConfig.ein}),
+                all donations are tax-deductible under U.S. law. Thank you for
+                supporting our mission to empower young people through tennis.
               </p>
               <hr className="mt-7 max-w-sm border-white/25" />
               <ul className="mt-6 flex items-center gap-4">
@@ -72,11 +80,15 @@ export function SiteFooter() {
             </RevealItem>
 
             <RevealItem>
-              <h2 className="headline text-display-sm text-white">Quick Links</h2>
+              <h2 className="headline text-display-sm text-white">
+                Quick Links
+              </h2>
               <div className="mt-6 grid gap-x-10 gap-y-8 sm:grid-cols-2">
                 {footerNav.map((group) => (
                   <nav key={group.label} aria-label={group.label}>
-                    <h3 className="text-[0.9375rem] font-bold text-lime">{group.label}</h3>
+                    <h3 className="text-[0.9375rem] font-bold text-lime">
+                      {group.label}
+                    </h3>
                     <ul className="mt-3 space-y-2">
                       {group.links.map((link) => (
                         <li key={link.href}>
@@ -95,13 +107,19 @@ export function SiteFooter() {
             </RevealItem>
 
             <RevealItem>
-              <h2 className="headline text-display-sm text-white">Contact Us</h2>
+              <h2 className="headline text-display-sm text-white">
+                Contact Us
+              </h2>
               <address className="mt-6 space-y-2 text-[0.875rem] text-white/85 not-italic">
-                <a href={`mailto:${siteConfig.email}`} className="block transition-colors hover:text-lime">
+                <a
+                  href={`mailto:${siteConfig.email}`}
+                  className="block transition-colors hover:text-lime"
+                >
                   {siteConfig.email}
                 </a>
                 <p>
-                  {siteConfig.address.locality}, {siteConfig.address.region}, {siteConfig.address.postalCode}
+                  {siteConfig.address.locality}, {siteConfig.address.region},{" "}
+                  {siteConfig.address.postalCode}
                 </p>
               </address>
               <Button href="/contact" className="mt-7">
