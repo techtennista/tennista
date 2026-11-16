@@ -11,7 +11,11 @@ type BrandProps = {
 };
 
 /** Full-colour logo lockup, used in the header. */
-export function Brand({ className, height = 52, priority = false }: BrandProps) {
+export function Brand({
+  className,
+  height = 52,
+  priority = false,
+}: BrandProps) {
   return (
     <Link
       href="/"
@@ -37,13 +41,24 @@ export function Brand({ className, height = 52, priority = false }: BrandProps) 
 /** Wordmark for the dark footer. */
 export function BrandLockup({ className }: { className?: string }) {
   return (
-    <Link href="/" aria-label={`${siteConfig.name} — home`} className={cn("inline-block", className)}>
+    <Link
+      href="/"
+      aria-label={`${siteConfig.name} — home`}
+      className={cn("inline-block", className)}
+    >
       <Image
         src="/tennista-footer-logo.png"
         alt={siteConfig.name}
         width={156}
         height={38}
         className="h-10 w-auto"
+      />
+      <Image
+        src="/foundation-logo.png"
+        alt="Foundation"
+        width={156}
+        height={20}
+        className="mt-1 h-auto w-full"
       />
     </Link>
   );
