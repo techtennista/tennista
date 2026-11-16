@@ -6,7 +6,12 @@ import { fallbackCourts, type TennisCourt } from "@/lib/tennis-courts";
 
 function LocationPin() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="mt-0.5 size-4 shrink-0">
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+      className="mt-0.5 size-4 shrink-0"
+    >
       <path d="M12 2a7 7 0 0 0-7 7c0 5.1 6.1 11.9 6.36 12.18a.86.86 0 0 0 1.28 0C12.9 20.9 19 14.1 19 9a7 7 0 0 0-7-7Zm0 9.6A2.6 2.6 0 1 1 12 6a2.6 2.6 0 0 1 0 5.2Z" />
     </svg>
   );
@@ -46,6 +51,26 @@ function FilterSelect({
   );
 }
 
+function formatAddress(court: TennisCourt) {
+  const parts = [court.address];
+
+  if (
+    court.city &&
+    !court.address.toLowerCase().includes(court.city.toLowerCase())
+  ) {
+    parts.push(court.city);
+  }
+
+  if (
+    court.state &&
+    !court.address.toLowerCase().includes(court.state.toLowerCase())
+  ) {
+    parts.push(court.state);
+  }
+
+  return parts.join(", ");
+}
+
 export function FindTennisCourts() {
   const [courts, setCourts] = useState<TennisCourt[]>(fallbackCourts);
   const [country, setCountry] = useState("");
@@ -70,24 +95,34 @@ export function FindTennisCourts() {
   }, []);
 
   const countries = useMemo(
-    () => [...new Set(courts.map((court) => court.country))].sort((a, b) => a.localeCompare(b)),
+    () =>
+      [...new Set(courts.map((court) => court.country))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
     [courts],
   );
   const states = useMemo(
     () =>
       [
         ...new Set(
-          courts.filter((court) => !country || court.country === country).map((court) => court.state),
+          courts
+            .filter((court) => !country || court.country === country)
+            .map((court) => court.state),
         ),
       ].sort((a, b) => a.localeCompare(b)),
     [country, courts],
   );
   const visibleCourts = courts.filter(
-    (court) => (!country || court.country === country) && (!state || court.state === state),
+    (court) =>
+      (!country || court.country === country) &&
+      (!state || court.state === state),
   );
 
   return (
-    <section aria-labelledby="courts-heading" className="bg-white pt-10 pb-20 sm:pt-14 sm:pb-24">
+    <section
+      aria-labelledby="courts-heading"
+      className="bg-white pt-10 pb-20 sm:pt-14 sm:pb-24"
+    >
       <div className="mx-auto w-full max-w-[96rem] px-5">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <h1 id="courts-heading" className="headline text-h3 text-blue-bright">
@@ -115,7 +150,10 @@ export function FindTennisCourts() {
 
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {visibleCourts.map((court) => (
-            <article key={court.id} className="rounded-[1.15rem] bg-lime-tint p-3 sm:p-4">
+            <article
+              key={court.id}
+              className="rounded-[1.15rem] bg-lime-tint p-3 sm:p-4"
+            >
               {court.imageUrl ? (
                 <img
                   src={court.imageUrl}
@@ -133,7 +171,7 @@ export function FindTennisCourts() {
                 </h2>
                 <p className="mt-3 flex items-start gap-2 text-[0.78rem] leading-relaxed text-gray">
                   <LocationPin />
-                  <span>{court.address}</span>
+                  <span>{formatAddress(court)}</span>
                 </p>
               </div>
             </article>
