@@ -29,19 +29,22 @@ const advisors: Person[] = [
     name: "Gabriel Fagbohun",
     role: "Management Consultant",
     photo: "Gabriel Fagbohun",
+    image: "/team/gabriel-fagbohun.png",
     bio: "A management, education, and career consultant and a public servant who believes aptitude, attitude and interest are fundamental to developing young talent. He has worked in talent development for over 15 years.",
   },
   {
     name: "Ayodeji Dada",
     role: "Sales and Operations Director",
     photo: "Ayodeji Dada",
+    image: "/team/ayodeji-dada.jpg",
     bio: "Ayodeji Dada is Sales and Operations Director for West Africa at Diversey (now part of Solenis Group). A lover of golf and tennis, he volunteers his time to support operations at Tennista Foundation.",
   },
-  {
-    name: "Titus Emmanuel",
-    role: "—",
-    photo: "Titus Emmanuel",
-  },
+  // Taking this off for now
+  // {
+  //   name: "Titus Emmanuel",
+  //   role: "—",
+  //   photo: "Titus Emmanuel",
+  // },
 ];
 
 function PersonCard({
@@ -64,11 +67,17 @@ function PersonCard({
         {open ? (
           <span className="flex h-full flex-1 flex-col bg-lime px-5 py-6 pr-14 sm:px-6 sm:pr-16">
             <span>
-              <span className="headline block text-[1.15rem] leading-tight text-blue">{person.name}</span>
-              <span className="mt-1 block text-sm text-blue-dark/80">{person.role}</span>
+              <span className="headline block text-[1.15rem] leading-tight text-blue">
+                {person.name}
+              </span>
+              <span className="mt-1 block text-sm text-blue-dark/80">
+                {person.role}
+              </span>
             </span>
             {person.bio ? (
-              <span className="mt-6 block text-[0.95rem] leading-relaxed text-blue-dark/90">{person.bio}</span>
+              <span className="mt-6 block text-[0.95rem] leading-relaxed text-blue-dark/90">
+                {person.bio}
+              </span>
             ) : null}
           </span>
         ) : (
@@ -81,13 +90,20 @@ function PersonCard({
                   className="absolute inset-0 h-full w-full object-cover object-[center_12%]"
                 />
               ) : (
-                <MediaPlaceholder label={person.photo} className="absolute inset-0 h-full w-full rounded-none" />
+                <MediaPlaceholder
+                  label={person.photo}
+                  className="absolute inset-0 h-full w-full rounded-none"
+                />
               )}
             </span>
             <span className="flex items-center bg-lime px-4 py-3 pr-14">
               <span>
-                <span className="headline block text-[1.05rem] leading-tight text-blue">{person.name}</span>
-                <span className="mt-0.5 block text-xs text-blue-dark/75">{person.role}</span>
+                <span className="headline block text-[1.05rem] leading-tight text-blue">
+                  {person.name}
+                </span>
+                <span className="mt-0.5 block text-xs text-blue-dark/75">
+                  {person.role}
+                </span>
               </span>
             </span>
           </>
@@ -134,7 +150,11 @@ function Arrow({
     >
       <svg viewBox="0 0 24 24" className="size-5" fill="none" aria-hidden>
         <path
-          d={direction === "left" ? "M14.5 6.5L8.5 12l6 5.5" : "M9.5 6.5L15.5 12l-6 5.5"}
+          d={
+            direction === "left"
+              ? "M14.5 6.5L8.5 12l6 5.5"
+              : "M9.5 6.5L15.5 12l-6 5.5"
+          }
           stroke="currentColor"
           strokeWidth="2.25"
           strokeLinecap="round"
@@ -158,7 +178,10 @@ function PeopleRow({
 }) {
   const scroller = useRef<HTMLDivElement>(null);
   const [openName, setOpenName] = useState<string | null>(null);
-  const [edges, setEdges] = useState({ atStart: true, atEnd: people.length <= 3 });
+  const [edges, setEdges] = useState({
+    atStart: true,
+    atEnd: people.length <= 3,
+  });
 
   const syncEdges = useCallback(() => {
     const el = scroller.current;
@@ -173,7 +196,10 @@ function PeopleRow({
     const el = scroller.current;
     const card = el?.querySelector("article");
     if (!el || !card) return;
-    el.scrollBy({ left: direction * (card.clientWidth + 20), behavior: "smooth" });
+    el.scrollBy({
+      left: direction * (card.clientWidth + 20),
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -181,15 +207,31 @@ function PeopleRow({
       <div className="flex items-end justify-between gap-6">
         <div>
           {eyebrow ? (
-            <p className="text-[0.75rem] font-bold tracking-[0.28em] text-ink-muted uppercase">{eyebrow}</p>
+            <p className="text-[0.75rem] font-bold tracking-[0.28em] text-ink-muted uppercase">
+              {eyebrow}
+            </p>
           ) : null}
-          <h2 id={id} className={cn("headline text-display-lg text-blue sm:text-display-xl", eyebrow && "mt-2")}>
+          <h2
+            id={id}
+            className={cn(
+              "headline text-display-lg text-blue sm:text-display-xl",
+              eyebrow && "mt-2",
+            )}
+          >
             {title}
           </h2>
         </div>
         <div className="flex gap-3">
-          <Arrow direction="left" disabled={edges.atStart} onClick={() => move(-1)} />
-          <Arrow direction="right" disabled={edges.atEnd} onClick={() => move(1)} />
+          <Arrow
+            direction="left"
+            disabled={edges.atStart}
+            onClick={() => move(-1)}
+          />
+          <Arrow
+            direction="right"
+            disabled={edges.atEnd}
+            onClick={() => move(1)}
+          />
         </div>
       </div>
 
@@ -203,7 +245,11 @@ function PeopleRow({
             key={person.name}
             person={person}
             open={openName === person.name}
-            onToggle={() => setOpenName((current) => (current === person.name ? null : person.name))}
+            onToggle={() =>
+              setOpenName((current) =>
+                current === person.name ? null : person.name,
+              )
+            }
           />
         ))}
       </div>
@@ -213,10 +259,22 @@ function PeopleRow({
 
 export function AboutPeople() {
   return (
-    <section aria-labelledby="leaders-heading" className="bg-white py-16 sm:py-20">
+    <section
+      aria-labelledby="leaders-heading"
+      className="bg-white py-16 sm:py-20"
+    >
       <div className="space-y-16 px-4 sm:space-y-20 sm:px-6 lg:px-12">
-        <PeopleRow id="leaders-heading" eyebrow="Meet us" title="The team leaders" people={leaders} />
-        <PeopleRow id="board-heading" title="Our advisory board" people={advisors} />
+        <PeopleRow
+          id="leaders-heading"
+          eyebrow="Meet us"
+          title="The team leaders"
+          people={leaders}
+        />
+        <PeopleRow
+          id="board-heading"
+          title="Our advisory board"
+          people={advisors}
+        />
       </div>
     </section>
   );
