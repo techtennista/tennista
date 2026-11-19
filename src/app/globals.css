@@ -29,8 +29,10 @@
 
   /* Type ------------------------------------------------------------------- */
   --font-sans: var(--font-brand-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-brand-display), ui-sans-serif, system-ui, sans-serif;
-  --font-wordmark: var(--font-brand-wordmark), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-brand-display), ui-sans-serif, system-ui, sans-serif;
+  --font-wordmark:
+    var(--font-brand-wordmark), ui-sans-serif, system-ui, sans-serif;
 
   /* Fluid display scale. Leading is 1.15 on purpose: Anton draws its caps
      almost the full em, so anything under 1 stacks the lines on top of each other. */
@@ -93,7 +95,8 @@
   --radius-panel: 1.75rem;
   --radius-block: 2.5rem;
 
-  --shadow-panel: 0 28px 64px -24px rgb(0 31 82 / 0.28), 0 2px 8px -2px rgb(0 31 82 / 0.08);
+  --shadow-panel:
+    0 28px 64px -24px rgb(0 31 82 / 0.28), 0 2px 8px -2px rgb(0 31 82 / 0.08);
   --shadow-card: 0 18px 40px -22px rgb(0 31 82 / 0.22);
   --shadow-cta: 0 12px 28px -12px rgb(0 60 148 / 0.45);
 
@@ -165,6 +168,46 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Privacy Policy
+--------------------------------------------------------------------------- */
+
+@layer components {
+  .policy-content p {
+    margin: 0;
+  }
+
+  .policy-content ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .policy-content li {
+    padding-left: 0.25rem;
+  }
+
+  .policy-content strong {
+    color: var(--color-ink, #172033);
+    font-weight: 600;
+  }
+
+  .policy-content a {
+    color: var(--color-blue, #2456a6);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: rgb(36 86 166 / 30%);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 150ms ease;
+  }
+
+  .policy-content a:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Tennis CTA interactions
 --------------------------------------------------------------------------- */
 .tennis-cta__label {
@@ -207,8 +250,10 @@
   transform: translateX(30%) scale(0.86);
 }
 
-.tennis-cta--lime:is(:hover, :focus-visible, :active) .tennis-cta__decoration::before,
-.tennis-cta--lime:is(:hover, :focus-visible, :active) .tennis-cta__decoration::after {
+.tennis-cta--lime:is(:hover, :focus-visible, :active)
+  .tennis-cta__decoration::before,
+.tennis-cta--lime:is(:hover, :focus-visible, :active)
+  .tennis-cta__decoration::after {
   opacity: 1;
   transform: translateX(0) scale(1);
 }
@@ -244,7 +289,8 @@
   right: -45%;
 }
 
-.tennis-cta--outline:is(:hover, :focus-visible, :active) .tennis-cta__decoration {
+.tennis-cta--outline:is(:hover, :focus-visible, :active)
+  .tennis-cta__decoration {
   animation: tennis-ball-swing 900ms var(--ease-in-out-smooth) both;
 }
 

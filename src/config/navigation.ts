@@ -41,14 +41,39 @@ export const mainNav: NavItem[] = [
     href: "/about",
     menu: {
       title: "About Tennista",
-      blurb: "Who we are, what drives us, and the impact we are accountable for.",
+      blurb:
+        "Who we are, what drives us, and the impact we are accountable for.",
       sections: [
-        { label: "About Us", href: "/about", description: "Our story and why we exist" },
-        { label: "Our Team", href: "/our-team", description: "The people behind the foundation" },
-        { label: "What Defines Us", href: "/what-defines-us", description: "Vision, mission and values" },
-        { label: "FAQs", href: "/faqs", description: "Answers to the questions we get most" },
-        { label: "Careers", href: "/careers", description: "Build your career with us" },
-        { label: "Impact Report", href: "/impact-report", description: "The numbers behind the mission" },
+        {
+          label: "About Us",
+          href: "/about",
+          description: "Our story and why we exist",
+        },
+        {
+          label: "Our Team",
+          href: "/our-team",
+          description: "The people behind the foundation",
+        },
+        {
+          label: "What Defines Us",
+          href: "/what-defines-us",
+          description: "Vision, mission and values",
+        },
+        {
+          label: "FAQs",
+          href: "/faqs",
+          description: "Answers to the questions we get most",
+        },
+        {
+          label: "Careers",
+          href: "/careers",
+          description: "Build your career with us",
+        },
+        {
+          label: "Impact Report",
+          href: "/impact-report",
+          description: "The numbers behind the mission",
+        },
       ],
     },
   },
@@ -62,7 +87,10 @@ export const mainNav: NavItem[] = [
         {
           label: "Tennis",
           links: [
-            { label: "School Tennis Support Program", href: "/programs/school-tennis-support" },
+            {
+              label: "School Tennis Support Program",
+              href: "/programs/school-tennis-support",
+            },
             { label: "Junior Tennis Open", href: "/junior-tennis-open" },
             { label: "Our Tennis Training", href: "/programs/tennis-training" },
           ],
@@ -91,10 +119,26 @@ export const mainNav: NavItem[] = [
       title: "Media & Events",
       blurb: "Stories, galleries and moments from the Tennista community.",
       sections: [
-        { label: "Tennis News", href: "/media/tennis-news", description: "Latest from the blog" },
-        { label: "Photo Gallery", href: "/media/photo-gallery", description: "Snapshots from the court" },
-        { label: "Video Gallery", href: "/media/video-gallery", description: "Watch the work in motion" },
-        { label: "Events", href: "/events", description: "What's coming up next" },
+        {
+          label: "Tennis News",
+          href: "/media/tennis-news",
+          description: "Latest from the blog",
+        },
+        {
+          label: "Photo Gallery",
+          href: "/media/photo-gallery",
+          description: "Snapshots from the court",
+        },
+        {
+          label: "Video Gallery",
+          href: "/media/video-gallery",
+          description: "Watch the work in motion",
+        },
+        {
+          label: "Events",
+          href: "/events",
+          description: "What's coming up next",
+        },
       ],
     },
   },
@@ -104,7 +148,10 @@ export const mainNav: NavItem[] = [
   },
 ];
 
-export const primaryCta: NavLink = { label: "Fund A Child", href: "/fund-a-child" };
+export const primaryCta: NavLink = {
+  label: "Fund A Child",
+  href: "/fund-a-child",
+};
 
 export const footerNav: NavGroup[] = [
   {
@@ -117,6 +164,7 @@ export const footerNav: NavGroup[] = [
       { label: "Careers", href: "/careers" },
       { label: "Impact Report", href: "/impact-report" },
       { label: "Find Tennis Courts", href: "/find-tennis-courts" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
     ],
   },
   {
