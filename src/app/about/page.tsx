@@ -25,6 +25,7 @@ export default function AboutPage() {
             attribution: "Althea Gibson",
             photo: "Althea Gibson",
             image: "/quotes/althea-gibson.jpg",
+            imageAlt: "Tennis pioneer Althea Gibson",
             imagePosition: "object-center",
           },
         ]}

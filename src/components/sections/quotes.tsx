@@ -14,6 +14,8 @@ export type Quote = {
   photo: string;
   /** Final photograph. When set, it fills the card from the top. */
   image?: string;
+  /** Descriptive alt text. */
+  imageAlt?: string;
   /** Object-position for the photograph. */
   imagePosition?: string;
   /** Keep the photograph on the right of the card so the person stays clear of the blue. */
@@ -26,6 +28,7 @@ const quotes: Quote[] = [
     attribution: "Billie Jean King",
     photo: "Billie Jean King",
     image: "/billie-jean-king.jpg",
+    imageAlt: "Tennis champion Billie Jean King",
   },
 ];
 
@@ -65,10 +68,7 @@ export function Quotes({
   edge?: "site" | "page";
   overlapNext?: boolean;
 }) {
-  const frame =
-    edge === "page" ? (
-      "space-y-6 px-5 sm:px-8 lg:px-12"
-    ) : undefined;
+  const frame = edge === "page" ? "space-y-6 px-5 sm:px-8 lg:px-12" : undefined;
 
   return (
     <section
@@ -81,7 +81,10 @@ export function Quotes({
       <h2 id={id} className="sr-only">
         Quotes
       </h2>
-      <Container className={frame ?? "space-y-6"} width={edge === "page" ? "wide" : "default"}>
+      <Container
+        className={frame ?? "space-y-6"}
+        width={edge === "page" ? "wide" : "default"}
+      >
         {items.map((quote) => (
           <Reveal key={quote.attribution ?? quote.caption ?? quote.text}>
             <figure
@@ -103,10 +106,13 @@ export function Quotes({
                 >
                   <Image
                     src={quote.image}
-                    alt=""
+                    alt={quote.imageAlt ?? ""}
                     fill
                     sizes="(min-width: 1024px) 80rem, 100vw"
-                    className={cn("object-cover", quote.imagePosition ?? "object-[72%_32%]")}
+                    className={cn(
+                      "object-cover",
+                      quote.imagePosition ?? "object-[72%_32%]",
+                    )}
                   />
                 </div>
               ) : null}
@@ -125,15 +131,22 @@ export function Quotes({
                   <p>{quote.text}</p>
                 </blockquote>
                 {quote.caption ? (
-                  <figcaption className="mt-6 max-w-md text-sm leading-relaxed text-lime">{quote.caption}</figcaption>
+                  <figcaption className="mt-6 max-w-md text-sm leading-relaxed text-lime">
+                    {quote.caption}
+                  </figcaption>
                 ) : (
-                  <figcaption className="mt-6 text-sm font-medium text-lime">— {quote.attribution}</figcaption>
+                  <figcaption className="mt-6 text-sm font-medium text-lime">
+                    — {quote.attribution}
+                  </figcaption>
                 )}
               </div>
 
               {quote.image ? null : (
                 <div className="relative min-h-52 lg:min-h-full">
-                  <MediaPlaceholder label={quote.photo} className="absolute inset-0 h-full" />
+                  <MediaPlaceholder
+                    label={quote.photo}
+                    className="absolute inset-0 h-full"
+                  />
                   <div
                     aria-hidden
                     className="absolute inset-0 bg-gradient-to-t from-blue via-blue/55 to-blue/10 lg:bg-gradient-to-r lg:from-blue lg:via-blue/75 lg:to-blue/15"
