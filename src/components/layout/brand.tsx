@@ -55,7 +55,7 @@ export function BrandLockup({ className }: { className?: string }) {
       />
       <Image
         src="/foundation-logo.png"
-        alt="Foundation"
+        alt="Tennista Foundation"
         width={156}
         height={20}
         className="mt-1 h-auto w-full"

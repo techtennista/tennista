@@ -10,6 +10,7 @@ type Goal = {
   color: string;
   body: string;
   icon: string;
+  iconAlt: string;
 };
 
 const goals: Goal[] = [
@@ -19,6 +20,7 @@ const goals: Goal[] = [
     color: "#e02030",
     icon: "/sdg-no-poverty.png",
     body: "Our objective is to use the platform of tennis to develop talents. Although tennis is perceived to be a sport of privilege and wealth, we want to change this narrative and encourage young people to aspire for wealth creation by offering a unique sport-based training programme for character development and financial literacy.",
+    iconAlt: "UN Sustainable Development Goal 1: No Poverty",
   },
   {
     id: 4,
@@ -26,6 +28,7 @@ const goals: Goal[] = [
     color: "#bc1428",
     icon: "/sdg-quality-education.png",
     body: "Our plan is to use the platform of Tennis to support academic excellence by rewarding high-flying students with academic scholarships and providing academic support materials such as textbooks and notebooks.",
+    iconAlt: "UN Sustainable Development Goal 4: Quality Education",
   },
   {
     id: 5,
@@ -33,6 +36,7 @@ const goals: Goal[] = [
     color: "#ec3824",
     icon: "/sdg-gender-equality.png",
     body: "Our aim is to drive gender equality; we are encouraging more girls to participate in our Tennis training programme by providing equal opportunities for both boys and girls. We want to see more young girls playing Tennis in Africa.",
+    iconAlt: "UN Sustainable Development Goal 5: Gender Equality",
   },
   {
     id: 8,
@@ -40,13 +44,17 @@ const goals: Goal[] = [
     color: "#981838",
     icon: "/sdg-decent-work.png",
     body: "The work reaches past the court. Coaching, mentoring and programme roles create decent jobs, and the skills young people build here travel with them into the wider economy.",
+    iconAlt:
+      "UN Sustainable Development Goal 8: Decent Work and Economic Growth",
   },
 ];
 
 const growEase = [0.16, 1, 0.3, 1] as const;
 
 export function SdgGoals({ ids }: { ids?: number[] } = {}) {
-  const visibleGoals = ids?.length ? goals.filter((goal) => ids.includes(goal.id)) : goals;
+  const visibleGoals = ids?.length
+    ? goals.filter((goal) => ids.includes(goal.id))
+    : goals;
   const [openId, setOpenId] = useState<number | null>(null);
   const [flowId, setFlowId] = useState<number | null>(null);
   const reduced = useReducedMotion();
@@ -82,11 +90,18 @@ export function SdgGoals({ ids }: { ids?: number[] } = {}) {
             tabIndex={0}
             aria-expanded={open}
             onMouseEnter={() => setOpenId(goal.id)}
-            onMouseLeave={() => setOpenId((current) => (current === goal.id ? null : current))}
+            onMouseLeave={() =>
+              setOpenId((current) => (current === goal.id ? null : current))
+            }
             onFocus={() => setOpenId(goal.id)}
-            onBlur={() => setOpenId((current) => (current === goal.id ? null : current))}
+            onBlur={() =>
+              setOpenId((current) => (current === goal.id ? null : current))
+            }
             onClick={() => {
-              if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+              if (
+                window.matchMedia("(hover: hover) and (pointer: fine)").matches
+              )
+                return;
               setOpenId(open ? null : goal.id);
             }}
             initial={false}
@@ -96,7 +111,9 @@ export function SdgGoals({ ids }: { ids?: number[] } = {}) {
             className="flex min-h-[17.5rem] min-w-0 cursor-pointer flex-col overflow-hidden rounded-[1.35rem] p-5 text-left text-white outline-offset-4 sm:p-6"
           >
             <span className="flex items-start gap-3">
-              <span className="text-[2.4rem] leading-none font-bold">{goal.id}</span>
+              <span className="text-[2.4rem] leading-none font-bold">
+                {goal.id}
+              </span>
               <span className="pt-1 text-left text-[0.72rem] leading-tight font-bold tracking-[0.04em] uppercase">
                 {goal.title}
               </span>
@@ -104,12 +121,14 @@ export function SdgGoals({ ids }: { ids?: number[] } = {}) {
             <span
               className={cn(
                 "flex w-full",
-                open ? "items-center justify-start pt-5" : "flex-1 items-center justify-center py-4",
+                open
+                  ? "items-center justify-start pt-5"
+                  : "flex-1 items-center justify-center py-4",
               )}
             >
               <img
                 src={goal.icon}
-                alt=""
+                alt={goal.iconAlt}
                 className="h-[5.25rem] w-auto max-w-[11rem] object-contain object-left"
               />
             </span>
