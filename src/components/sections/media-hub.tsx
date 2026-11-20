@@ -1,8 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
 import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -70,12 +84,14 @@ const shots = [
 
 const defaultNews: MediaStory[] = [
   {
-    title: "Atilola, Zara, others shine at Tennista Foundation Junior Tennis' tourney",
+    title:
+      "Atilola, Zara, others shine at Tennista Foundation Junior Tennis' tourney",
     image: "/2025-tournament-1.jpg",
     href: "/media/tennis-news/atilola-zara-others-shine-at-tennista-foundation-junior-tennis-tourney",
   },
   {
-    title: "Tennista offer junior tennis tournament winners, runner-ups scholarship",
+    title:
+      "Tennista offer junior tennis tournament winners, runner-ups scholarship",
     image: "/2026-tournament-3.jpg",
     href: "/media/tennis-news/tennista-offer-junior-tennis-tournament-winners-runner-ups-scholarship",
   },
@@ -84,11 +100,31 @@ const defaultNews: MediaStory[] = [
     image: "/junior-tennis-open-cover.jpg",
     href: "/media/tennis-news/55-kids-serve-off-maiden-tennista-junior-tennis-open",
   },
-  { title: "Tennista Foundation to exhibit at 2025 Olney Community Day", image: "/2025-tournament-2.jpg", href: "/media/tennis-news" },
-  { title: "Tennista boosts tennis development at Igbobi College", image: "/2025-tournament-3.jpg", href: "/media/tennis-news" },
-  { title: "Djokovic vs Brooksby: Match insights with Watson", image: "/2026-tournament-1.jpg", href: "/media/tennis-news" },
-  { title: "Dreaming big: 8 unforgettable 2021 US Open breakthroughs", image: "/2027-tournament-1.jpg", href: "/media/tennis-news" },
-  { title: "Emma Raducanu leads British invasion at the 2021 US Open", image: "/2027-tournament02.jpg", href: "/media/tennis-news" },
+  {
+    title: "Tennista Foundation to exhibit at 2025 Olney Community Day",
+    image: "/2025-tournament-2.jpg",
+    href: "/media/tennis-news",
+  },
+  {
+    title: "Tennista boosts tennis development at Igbobi College",
+    image: "/2025-tournament-3.jpg",
+    href: "/media/tennis-news",
+  },
+  {
+    title: "Djokovic vs Brooksby: Match insights with Watson",
+    image: "/2026-tournament-1.jpg",
+    href: "/media/tennis-news",
+  },
+  {
+    title: "Dreaming big: 8 unforgettable 2021 US Open breakthroughs",
+    image: "/2027-tournament-1.jpg",
+    href: "/media/tennis-news",
+  },
+  {
+    title: "Emma Raducanu leads British invasion at the 2021 US Open",
+    image: "/2027-tournament-2.jpg",
+    href: "/media/tennis-news",
+  },
 ];
 
 const photos = [
@@ -102,7 +138,14 @@ const photos = [
   "Close-up in the stands",
 ] as const;
 
-const videos = ["Clinic session", "Match point", "Award moment", "Court warm-up", "Group drill", "Closing rally"] as const;
+const videos = [
+  "Clinic session",
+  "Match point",
+  "Award moment",
+  "Court warm-up",
+  "Group drill",
+  "Closing rally",
+] as const;
 
 export function MediaHub({
   initialTab = "news",
@@ -124,7 +167,12 @@ export function MediaHub({
     offset: ["start start", "end end"],
   });
   const folded = useTransform(scrollYProgress, [0, 0.72, 1], [0, 1, 1]);
-  const followed = useSpring(folded, { stiffness: 55, damping: 22, mass: 0.8, restDelta: 0.0005 });
+  const followed = useSpring(folded, {
+    stiffness: 55,
+    damping: 22,
+    mass: 0.8,
+    restDelta: 0.0005,
+  });
   const heldOpen = useMotionValue(1);
   const spread = reduced ? heldOpen : followed;
   const compactOpacity = useTransform(spread, [0, 0.16, 0.42], [1, 1, 0]);
@@ -136,16 +184,17 @@ export function MediaHub({
 
   const term = query.trim().toLowerCase();
   const searchableItems =
-    tab === "events"
-      ? eventItems
-      : tab === "videos"
-        ? videoItems
-        : newsItems;
-  const stories = searchableItems.filter((item) => item.title.toLowerCase().includes(term));
+    tab === "events" ? eventItems : tab === "videos" ? videoItems : newsItems;
+  const stories = searchableItems.filter((item) =>
+    item.title.toLowerCase().includes(term),
+  );
 
   return (
     <>
-      <section ref={stageRef} className={reduced ? "bg-white" : "relative bg-white md:h-[150vh]"}>
+      <section
+        ref={stageRef}
+        className={reduced ? "bg-white" : "relative bg-white md:h-[150vh]"}
+      >
         <div
           className={cn(
             "overflow-x-hidden bg-white px-5 pt-8 pb-6 sm:px-8 lg:px-12",
@@ -154,11 +203,18 @@ export function MediaHub({
         >
           <div className="relative h-[10rem] w-full md:hidden">
             <div className="absolute top-1/2 left-1/2 h-[4.25rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[0.8rem]">
-              <img src="/feed-your-eyes-2.png" alt="A young player reaching forward with a tennis racket" className="absolute top-1/2 left-1/2 h-[165%] w-[165%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover" />
+              <img
+                src="/feed-your-eyes-2.png"
+                alt="A young player reaching forward with a tennis racket"
+                className="absolute top-1/2 left-1/2 h-[165%] w-[165%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+              />
             </div>
           </div>
 
-          <motion.div className="relative hidden w-full md:block" style={{ height: stageHeight }}>
+          <motion.div
+            className="relative hidden w-full md:block"
+            style={{ height: stageHeight }}
+          >
             <motion.div
               aria-hidden
               className="absolute top-1/2 left-1/2 h-[4.25rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[0.8rem]"
@@ -183,9 +239,25 @@ export function MediaHub({
           <div className="mt-8 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <label className="relative block w-[17.5rem] shrink-0">
               <span className="sr-only">Search</span>
-              <svg viewBox="0 0 24 24" className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-black" fill="none" aria-hidden>
-                <circle cx="11" cy="11" r="6.25" stroke="currentColor" strokeWidth="2.2" />
-                <path d="M16 16.5L20 20.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              <svg
+                viewBox="0 0 24 24"
+                className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-black"
+                fill="none"
+                aria-hidden
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="6.25"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                />
+                <path
+                  d="M16 16.5L20 20.5"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                />
               </svg>
               <input
                 value={query}
@@ -194,7 +266,11 @@ export function MediaHub({
                 className="h-12 w-full rounded-full border-[2.5px] border-black bg-white pr-5 pl-11 text-sm text-blue outline-none placeholder:text-black/50"
               />
             </label>
-            <div className="flex flex-wrap gap-2 sm:justify-end" role="tablist" aria-label="Media">
+            <div
+              className="flex flex-wrap gap-2 sm:justify-end"
+              role="tablist"
+              aria-label="Media"
+            >
               {tabs.map((item) => {
                 const selected = tab === item.id;
                 return (
@@ -206,7 +282,9 @@ export function MediaHub({
                     onClick={() => setTab(item.id)}
                     className={cn(
                       "rounded-full px-4 py-2 text-sm font-bold",
-                      selected ? "bg-blue text-white" : "border-2 border-blue bg-white text-blue",
+                      selected
+                        ? "bg-blue text-white"
+                        : "border-2 border-blue bg-white text-blue",
                     )}
                   >
                     {item.label}
@@ -220,7 +298,11 @@ export function MediaHub({
 
       <section className="bg-white px-5 pt-4 pb-16 sm:px-8 lg:px-12">
         {tab === "photos" ? (
-          <PhotoInfiniteGrid key={term} query={query.trim()} initialFeed={photoFeed} />
+          <PhotoInfiniteGrid
+            key={term}
+            query={query.trim()}
+            initialFeed={photoFeed}
+          />
         ) : (
           <GalleryPane key={`${tab}:${term}`} tab={tab} stories={stories} />
         )}
@@ -237,11 +319,15 @@ function PhotoInfiniteGrid({
   initialFeed?: PhotoFeed;
 }) {
   const blankQuery = query === "";
-  const [items, setItems] = useState<PhotoFeedItem[]>(() => (blankQuery ? initialFeed?.items ?? [] : []));
+  const [items, setItems] = useState<PhotoFeedItem[]>(() =>
+    blankQuery ? (initialFeed?.items ?? []) : [],
+  );
   const [nextOffset, setNextOffset] = useState<number | null>(() =>
     blankQuery ? (initialFeed?.nextOffset ?? null) : null,
   );
-  const [total, setTotal] = useState(() => (blankQuery ? initialFeed?.total ?? 0 : 0));
+  const [total, setTotal] = useState(() =>
+    blankQuery ? (initialFeed?.total ?? 0) : 0,
+  );
   const [loading, setLoading] = useState(!blankQuery);
   const [error, setError] = useState("");
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -256,7 +342,10 @@ function PhotoInfiniteGrid({
     setLoading(true);
     setError("");
     try {
-      const params = new URLSearchParams({ offset: String(offset), limit: "16" });
+      const params = new URLSearchParams({
+        offset: String(offset),
+        limit: "16",
+      });
       if (query) params.set("q", query);
       const response = await fetch(`/api/photos?${params}`);
       if (!response.ok) throw new Error("Unable to load more photos.");
@@ -269,7 +358,11 @@ function PhotoInfiniteGrid({
       setNextOffset(page.nextOffset);
       setTotal(page.total);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Unable to load more photos.");
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load more photos.",
+      );
     } finally {
       loadingRef.current = false;
       setLoading(false);
@@ -299,7 +392,9 @@ function PhotoInfiniteGrid({
       try {
         const params = new URLSearchParams({ offset: "0", limit: "16" });
         if (query) params.set("q", query);
-        const response = await fetch(`/api/photos?${params}`, { signal: controller.signal });
+        const response = await fetch(`/api/photos?${params}`, {
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error("Unable to load photos.");
         const page = (await response.json()) as PhotoFeed;
         if (cancelled) return;
@@ -309,7 +404,11 @@ function PhotoInfiniteGrid({
         setTotal(page.total);
       } catch (loadError) {
         if (cancelled || controller.signal.aborted) return;
-        setError(loadError instanceof Error ? loadError.message : "Unable to load photos.");
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Unable to load photos.",
+        );
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -353,7 +452,8 @@ function PhotoInfiniteGrid({
   if (!items.length) {
     return (
       <p className="mx-auto w-full py-16 text-center text-blue">
-        {error || (query ? "Nothing matches that search." : "Photos coming soon.")}
+        {error ||
+          (query ? "Nothing matches that search." : "Photos coming soon.")}
       </p>
     );
   }
@@ -384,7 +484,9 @@ function PhotoInfiniteGrid({
           </button>
         </div>
       ) : null}
-      {error ? <p className="mt-2 text-center text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mt-2 text-center text-sm text-red-600">{error}</p>
+      ) : null}
     </div>
   );
 }
@@ -423,7 +525,13 @@ function GalleryPhoto({ photo }: { photo: PhotoFeedItem }) {
   );
 }
 
-function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStory[] }) {
+function GalleryPane({
+  tab,
+  stories,
+}: {
+  tab: TabId;
+  stories: readonly MediaStory[];
+}) {
   const reduced = useReducedMotion();
   const [ready, setReady] = useState(false);
 
@@ -435,22 +543,41 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStor
   if (!ready) return <GalleryLoader tab={tab} />;
 
   if (tab === "news" && stories.length === 0) {
-    return <p className="mx-auto w-full py-16 text-center text-blue">Nothing matches that search.</p>;
+    return (
+      <p className="mx-auto w-full py-16 text-center text-blue">
+        Nothing matches that search.
+      </p>
+    );
   }
 
   if (tab === "events") {
     if (stories.length === 0) {
-      return <p className="mx-auto w-full py-16 text-center text-blue">Nothing matches that search.</p>;
+      return (
+        <p className="mx-auto w-full py-16 text-center text-blue">
+          Nothing matches that search.
+        </p>
+      );
     }
     return (
       <FadeGrid className="grid w-full">
         {stories.map((story) => (
-          <article key={story.title} className="rounded-[1.25rem] bg-blue-tint p-4">
+          <article
+            key={story.title}
+            className="rounded-[1.25rem] bg-blue-tint p-4"
+          >
             <Link href={story.href} className="group block">
-              <img src={story.image} alt="" className="aspect-[16/10] w-full rounded-[1rem] object-cover transition group-hover:scale-[1.01]" />
-              <h2 className="mt-4 text-sm leading-snug font-bold tracking-wide text-blue uppercase">{story.title}</h2>
+              <img
+                src={story.image}
+                alt=""
+                className="aspect-[16/10] w-full rounded-[1rem] object-cover transition group-hover:scale-[1.01]"
+              />
+              <h2 className="mt-4 text-sm leading-snug font-bold tracking-wide text-blue uppercase">
+                {story.title}
+              </h2>
             </Link>
-            <p className="mt-4 border-t border-blue/15 pt-3 text-sm text-ink-muted">{story.date ?? "Date to be announced"}</p>
+            <p className="mt-4 border-t border-blue/15 pt-3 text-sm text-ink-muted">
+              {story.date ?? "Date to be announced"}
+            </p>
           </article>
         ))}
       </FadeGrid>
@@ -461,7 +588,11 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStor
     return (
       <FadeGrid className="mx-auto grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
         {photos.map((label) => (
-          <MediaPlaceholder key={label} label={label} className="aspect-square w-full rounded-[1rem]" />
+          <MediaPlaceholder
+            key={label}
+            label={label}
+            className="aspect-square w-full rounded-[1rem]"
+          />
         ))}
       </FadeGrid>
     );
@@ -475,9 +606,17 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStor
       <FadeGrid className="mx-auto grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {videos.map((label) => (
           <div key={label} className="relative">
-            <MediaPlaceholder label={label} className="aspect-video w-full rounded-[1rem]" />
+            <MediaPlaceholder
+              label={label}
+              className="aspect-video w-full rounded-[1rem]"
+            />
             <span className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-blue">
-              <svg viewBox="0 0 24 24" className="ml-0.5 size-5" fill="currentColor" aria-hidden>
+              <svg
+                viewBox="0 0 24 24"
+                className="ml-0.5 size-5"
+                fill="currentColor"
+                aria-hidden
+              >
                 <path d="M8 6.5v11l9-5.5-9-5.5z" />
               </svg>
               <span className="sr-only">Play {label}</span>
@@ -491,10 +630,19 @@ function GalleryPane({ tab, stories }: { tab: TabId; stories: readonly MediaStor
   return (
     <FadeGrid className="mx-auto grid w-full gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {stories.map((story) => (
-        <article key={story.title} className="rounded-[1.25rem] bg-[#f7f6dc] p-3">
+        <article
+          key={story.title}
+          className="rounded-[1.25rem] bg-[#f7f6dc] p-3"
+        >
           <Link href={story.href} className="group block">
-            <img src={story.image} alt="" className="aspect-[4/3] w-full rounded-[1rem] object-cover transition-transform duration-300 group-hover:scale-[1.01]" />
-            <h2 className="mt-4 px-2 text-sm leading-snug font-bold tracking-wide text-blue uppercase">{story.title}</h2>
+            <img
+              src={story.image}
+              alt=""
+              className="aspect-[4/3] w-full rounded-[1rem] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+            />
+            <h2 className="mt-4 px-2 text-sm leading-snug font-bold tracking-wide text-blue uppercase">
+              {story.title}
+            </h2>
           </Link>
           <div className="mx-2 mt-4 flex items-center justify-between border-t border-blue/15 pt-3 text-sm text-ink-muted">
             <span>tennismaster</span>
@@ -553,7 +701,12 @@ function VideoPlayer({
     <div className="grid h-full place-items-center bg-black px-6 text-center text-sm text-white/80">
       <p>
         This video can’t be embedded.{" "}
-        <a href={video.href} target="_blank" rel="noreferrer noopener" className="underline">
+        <a
+          href={video.href}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="underline"
+        >
           Open it instead
         </a>
         .
@@ -587,21 +740,37 @@ function VideoGalleryGrid({ stories }: { stories: readonly MediaStory[] }) {
           const key = `${video.title}:${video.embedSrc ?? video.href}`;
           const isPlaying = playingKey === key && !modalVideo;
           return (
-            <article key={key} className="group relative block w-full text-left">
+            <article
+              key={key}
+              className="group relative block w-full text-left"
+            >
               <div className="relative overflow-hidden rounded-[1rem] bg-blue-tint">
                 {isPlaying ? (
                   <div className="aspect-video w-full bg-black">
-                    <VideoPlayer video={video} autoPlay className="h-full w-full" />
+                    <VideoPlayer
+                      video={video}
+                      autoPlay
+                      className="h-full w-full"
+                    />
                   </div>
                 ) : (
                   <>
-                    <img src={video.image} alt="" className="aspect-video w-full object-cover" />
+                    <img
+                      src={video.image}
+                      alt=""
+                      className="aspect-video w-full object-cover"
+                    />
                     <button
                       type="button"
                       onClick={() => setPlayingKey(key)}
                       className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-white/90 text-blue transition hover:scale-110"
                     >
-                      <svg viewBox="0 0 24 24" className="ml-0.5 size-5" fill="currentColor" aria-hidden>
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="ml-0.5 size-5"
+                        fill="currentColor"
+                        aria-hidden
+                      >
                         <path d="M8 6.5v11l9-5.5-9-5.5z" />
                       </svg>
                       <span className="sr-only">Play {video.title}</span>
@@ -640,7 +809,9 @@ function VideoGalleryGrid({ stories }: { stories: readonly MediaStory[] }) {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-4 bg-blue px-4 py-3 text-white">
-              <h3 className="truncate text-sm font-bold sm:text-base">{modalVideo.title}</h3>
+              <h3 className="truncate text-sm font-bold sm:text-base">
+                {modalVideo.title}
+              </h3>
               <button
                 type="button"
                 onClick={() => setModalVideo(null)}
@@ -650,7 +821,11 @@ function VideoGalleryGrid({ stories }: { stories: readonly MediaStory[] }) {
               </button>
             </div>
             <div className="aspect-video w-full bg-black">
-              <VideoPlayer video={modalVideo} autoPlay className="h-full w-full" />
+              <VideoPlayer
+                video={modalVideo}
+                autoPlay
+                className="h-full w-full"
+              />
             </div>
           </div>
         </div>
@@ -659,7 +834,13 @@ function VideoGalleryGrid({ stories }: { stories: readonly MediaStory[] }) {
   );
 }
 
-function FadeGrid({ className, children }: { className: string; children: ReactNode }) {
+function FadeGrid({
+  className,
+  children,
+}: {
+  className: string;
+  children: ReactNode;
+}) {
   const reduced = useReducedMotion();
   return (
     <motion.div
@@ -688,7 +869,12 @@ function GalleryLoader({ tab }: { tab: TabId }) {
       <span className="sr-only">Loading {tab}</span>
       {Array.from({ length: count }, (_, index) => (
         <div key={index} className="rounded-[1.25rem] bg-[#f7f6dc] p-3">
-          <div className={cn("animate-pulse rounded-[1rem] bg-blue/10", photo ? "aspect-square" : "aspect-[4/3]")} />
+          <div
+            className={cn(
+              "animate-pulse rounded-[1rem] bg-blue/10",
+              photo ? "aspect-square" : "aspect-[4/3]",
+            )}
+          />
           {photo ? null : (
             <>
               <div className="mt-4 h-3 w-4/5 animate-pulse rounded-full bg-blue/10" />

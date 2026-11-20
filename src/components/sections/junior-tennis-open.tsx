@@ -51,7 +51,7 @@ const editions2026: Edition[] = [
   },
   {
     tone: "bg-blue-tint",
-    image: "/2026-tournament04.jpg",
+    image: "/2026-tournament-4.jpg",
     alt: "Organisers in front of the tournament backdrop",
     body: "Beyond the court, the Foundation announced a new strategic partnership with the American Business Council aimed at securing collegiate tennis scholarships in the United States for Nigerian players, alongside continued support from the Lagos State Sports Commission and the Lagos Country Club.",
   },
@@ -66,7 +66,7 @@ const editions2027: Edition[] = [
   },
   {
     tone: "bg-[#f7f6dc]",
-    image: "/2027-tournament02.jpg",
+    image: "/2027-tournament-2.jpg",
     alt: "A player standing on a clay court",
     body: "The 2027 edition is positioned to build on that momentum, though the venue, dates, and target participant numbers are yet to be slated. It remains to be seen whether new age categories or divisions will be introduced to match the tournament's growing footprint.",
   },
@@ -78,11 +78,14 @@ export function JuniorTennisOpen() {
       <section className="bg-white pt-14 pb-20 sm:pt-16 sm:pb-24">
         <Container>
           <div className="grid items-end gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
-            <h1 className="headline text-display-lg text-blue sm:text-display-xl">Junior Tennis Open</h1>
+            <h1 className="headline text-display-lg text-blue sm:text-display-xl">
+              Junior Tennis Open
+            </h1>
             <p className="max-w-md text-[0.98rem] leading-relaxed text-ink lg:justify-self-end">
-              The Tennista Junior Tennis Open is our flagship annual tournament, a competitive stage
-              where young players aged 8–16 test their skills in real match play, with certified
-              officials, real draws, and prizes that go beyond trophies.
+              The Tennista Junior Tennis Open is our flagship annual tournament,
+              a competitive stage where young players aged 8–16 test their
+              skills in real match play, with certified officials, real draws,
+              and prizes that go beyond trophies.
             </p>
           </div>
 
@@ -92,14 +95,14 @@ export function JuniorTennisOpen() {
                 Winners Don&apos;t Only Get To Lift Cups
               </h2>
               <p className="mt-4 max-w-[18rem] text-[0.98rem] leading-relaxed text-white/90 sm:max-w-[20rem]">
-                They earn educational scholarships, rackets, and kits because at Tennista, every big
-                swing is backed by a bigger future.
+                They earn educational scholarships, rackets, and kits because at
+                Tennista, every big swing is backed by a bigger future.
               </p>
               <p className="mt-5 max-w-[18rem] text-[0.98rem] leading-relaxed text-white/90 sm:max-w-[20rem]">
-                What began in 2025 with 55 athletes at Rowe Park, Yaba, has grown into a
-                multi-category tournament at the Lagos Country Club, with a pathway toward US
-                collegiate scholarships now in the making. Here&apos;s the journey so far, edition by
-                edition
+                What began in 2025 with 55 athletes at Rowe Park, Yaba, has
+                grown into a multi-category tournament at the Lagos Country
+                Club, with a pathway toward US collegiate scholarships now in
+                the making. Here&apos;s the journey so far, edition by edition
               </p>
             </div>
             <div className="relative z-20 h-72 sm:h-96 lg:absolute lg:inset-y-0 lg:right-0 lg:h-auto lg:w-[60%]">
@@ -126,7 +129,10 @@ export function JuniorTennisOpen() {
           preserveAspectRatio="none"
           className="absolute inset-x-0 top-0 h-14 w-full -translate-y-[99%] text-white sm:h-20"
         >
-          <path fill="currentColor" d="M0,90 C320,90 460,10 720,10 C980,10 1120,90 1440,90 L1440,0 L0,0 Z" />
+          <path
+            fill="currentColor"
+            d="M0,90 C320,90 460,10 720,10 C980,10 1120,90 1440,90 L1440,0 L0,0 Z"
+          />
         </svg>
         <Container className="py-16 sm:py-20">
           <EditionStack year="2026" editions={editions2026} />
@@ -137,7 +143,10 @@ export function JuniorTennisOpen() {
           preserveAspectRatio="none"
           className="absolute inset-x-0 bottom-0 h-14 w-full translate-y-[99%] text-white sm:h-20"
         >
-          <path fill="currentColor" d="M0,0 C320,0 460,80 720,80 C980,80 1120,0 1440,0 L1440,90 L0,90 Z" />
+          <path
+            fill="currentColor"
+            d="M0,0 C320,0 460,80 720,80 C980,80 1120,0 1440,0 L1440,90 L0,90 Z"
+          />
         </svg>
       </section>
 
@@ -166,7 +175,12 @@ function EditionStack({
   className?: string;
 }) {
   return (
-    <div className={cn("grid items-start gap-8 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10", className)}>
+    <div
+      className={cn(
+        "grid items-start gap-8 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10",
+        className,
+      )}
+    >
       <h2 className="text-[clamp(1.8rem,3vw,2.5rem)] leading-none font-bold text-blue lg:sticky lg:top-[6.5rem]">
         {year} Tournament
       </h2>
@@ -180,8 +194,14 @@ function EditionStack({
             )}
             style={{ zIndex: index + 1 }}
           >
-            <p className="text-[0.98rem] leading-relaxed font-medium text-blue">{edition.body}</p>
-            <img src={edition.image} alt={edition.alt} className="h-auto w-full rounded-[1rem]" />
+            <p className="text-[0.98rem] leading-relaxed font-medium text-blue">
+              {edition.body}
+            </p>
+            <img
+              src={edition.image}
+              alt={edition.alt}
+              className="h-auto w-full rounded-[1rem]"
+            />
           </article>
         ))}
       </div>
