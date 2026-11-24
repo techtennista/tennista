@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SdgGoals } from "@/components/sections/sdg-goals";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const tabs = [
   "Tennis",
@@ -38,6 +39,8 @@ const chapters = [
     alt: "Players and coaches at the Tennista Foundation Junior Tennis Tournament",
     imageFirst: true,
     body: "In 2021, Tennista Foundation was founded as a non-profit based in Lagos, on a simple belief: tennis could open doors for young people, not just serve as a sport of privilege. Three years later, Tennista foundation expanded its global focus, by registering as a 501(c)(3) non-profit organization in the US in 2024.",
+    width: 477,
+    height: 307,
   },
   {
     tone: "bg-[#f7f6dc]",
@@ -45,6 +48,8 @@ const chapters = [
     alt: "A coach speaking with children on an outdoor court",
     imageFirst: false,
     body: "In 2025, Tennista held its first Junior Tennis Tournament at Rowe Park, Lagos, drawing 55 young athletes and awarding scholarships to winners and runners-up.",
+    width: 318,
+    height: 205,
   },
   {
     tone: "bg-blue-tint",
@@ -52,6 +57,8 @@ const chapters = [
     alt: "Speakers seated at a Junior Tennis panel",
     imageFirst: true,
     body: "By April 2026, the tournament's second edition at the Lagos Country Club had grown to hundreds of participants and was even better. We announced partnerships with U.S. institutions to help top Nigerian players earn collegiate tennis scholarships, turning this supposedly local tournament into an international pipeline from courts in Lagos to campuses abroad.",
+    width: 318,
+    height: 205,
   },
 ] as const;
 
@@ -62,6 +69,8 @@ const pillars = [
     alt: "A scholarship cheque presented in front of a Tennista backdrop",
     href: "/programs/school-tennis-support",
     body: "Not every child gets the chance to walk onto a tennis court and discover what they're capable of. For many students, the biggest barrier isn't talent; it's access.",
+    width: 465,
+    height: 362,
   },
   {
     title: "Junior Tennis Open",
@@ -69,6 +78,8 @@ const pillars = [
     alt: "A speaker with a microphone at the Junior Tennis Open",
     href: "/junior-tennis-open",
     body: "The Tennista Foundation Junior Tennis Tournament is a competitive platform for young players aged 8 to 16 where their talent is tested and rewarded on the court.",
+    width: 477,
+    height: 362,
   },
   {
     title: "Tennis Clinic for Kids",
@@ -76,6 +87,8 @@ const pillars = [
     alt: "Children with rackets at a tennis clinic",
     href: "/programs/tennis-training",
     body: "Our tennis program features eight weeks of beginner-to-expert training with meaningful and positive experiences that will be enjoyable and lead to positive development.",
+    width: 477,
+    height: 362,
   },
 ] as const;
 
@@ -189,41 +202,57 @@ const activities = [
     title: "Games",
     image: "/games.jpg",
     alt: "Children with rackets on a clay court",
+    width: 900,
+    height: 420,
   },
   {
     title: "Role play",
     image: "/role-play.jpg",
     alt: "A boy hitting a forehand",
+    width: 600,
+    height: 280,
   },
   {
     title: "Group work",
     image: "/group-work.jpg",
     alt: "Children lined up across a court",
+    width: 900,
+    height: 420,
   },
   {
     title: "Open discussion",
     image: "/open-discussion.jpg",
     alt: "A coach talking with two players",
+    width: 900,
+    height: 420,
   },
   {
     title: "Debates",
     image: "/debates.jpg",
     alt: "A student speaking into a microphone",
+    width: 900,
+    height: 387,
   },
   {
     title: "Field work",
     image: "/field-work.jpg",
     alt: "A girl smiling beside a tennis racket",
+    width: 900,
+    height: 387,
   },
   {
     title: "Panel discussions",
     image: "/panel-discussions.jpg",
     alt: "A panel seated at a table",
+    width: 900,
+    height: 387,
   },
   {
     title: "Mentoring programs",
     image: "/mentoring-programs.jpg",
     alt: "Mentors working through papers with a student",
+    width: 900,
+    height: 387,
   },
 ] as const;
 
@@ -298,9 +327,12 @@ function LifeSkillsPanel() {
             ))}
           </ul>
         </div>
-        <img
+        <Image
           src="/critical-thinking.jpg"
           alt="A player returning a ball in front of blue stadium seats"
+          width={1020}
+          height={1006}
+          sizes="(max-width: 1023px) 100vw, 42vw"
           className="aspect-square w-full rounded-[1.25rem] object-cover"
         />
       </div>
@@ -309,9 +341,12 @@ function LifeSkillsPanel() {
         From there, we go deeper
       </h3>
       <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:gap-10">
-        <img
+        <Image
           src="/we-go-deeper.jpg"
           alt="A player on court with tennis balls in the foreground"
+          width={1020}
+          height={929}
+          sizes="(max-width: 1023px) 100vw, 36vw"
           className="aspect-[1020/929] w-full rounded-[1.25rem] object-cover lg:sticky lg:top-[5.75rem]"
         />
         <div className="flex flex-col gap-5">
@@ -359,9 +394,12 @@ function LifeSkillsPanel() {
               <h4 className="text-[clamp(1.35rem,2vw,1.75rem)] font-bold text-blue">
                 {activity.title}
               </h4>
-              <img
+              <Image
                 src={activity.image}
                 alt={activity.alt}
+                width={activity.width}
+                height={activity.height}
+                sizes="(max-width: 1023px) 100vw, 55vw"
                 className="mt-3 aspect-[15/7] w-full rounded-[1rem] object-cover"
               />
             </article>
@@ -395,9 +433,12 @@ function TennisPanel() {
                   !chapter.imageFirst && "lg:[&>*:first-child]:order-2",
                 )}
               >
-                <img
+                <Image
                   src={chapter.image}
                   alt={chapter.alt}
+                  width={chapter.width}
+                  height={chapter.height}
+                  sizes="(max-width: 1023px) 100vw, 50vw"
                   className="aspect-[3/2] w-full rounded-[1rem] object-cover"
                 />
                 <p className="text-[0.95rem] leading-relaxed font-medium text-blue">
@@ -419,9 +460,12 @@ function TennisPanel() {
               key={pillar.title}
               className="rounded-[1.25rem] bg-[#f7f6dc] p-3 sm:p-4"
             >
-              <img
+              <Image
                 src={pillar.image}
                 alt={pillar.alt}
+                width={pillar.width}
+                height={pillar.height}
+                sizes="(max-width: 1023px) 100vw, 33vw"
                 className="aspect-[4/3] w-full rounded-[1rem] object-cover"
               />
               <h4 className="headline mt-5 px-2 text-[1.15rem] leading-tight text-blue">

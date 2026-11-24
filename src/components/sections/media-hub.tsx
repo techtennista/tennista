@@ -20,6 +20,7 @@ import {
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
 import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const tabs = [
   { id: "news", label: "Tennis News" },
@@ -51,6 +52,8 @@ const shots = [
     x: -43,
     y: 76,
     width: "clamp(9rem,15.5vw,14rem)",
+    imageWidth: 188,
+    imageHeight: 373,
   },
   {
     image: "/feed-your-eyes-2.png",
@@ -58,6 +61,8 @@ const shots = [
     x: -25,
     y: 16,
     width: "clamp(13rem,25.5vw,23rem)",
+    imageWidth: 206,
+    imageHeight: 242,
   },
   {
     image: "/feed-your-eyes-3.png",
@@ -65,6 +70,8 @@ const shots = [
     x: 0,
     y: -19,
     width: "clamp(11rem,21.3vw,19rem)",
+    imageWidth: 330,
+    imageHeight: 424,
   },
   {
     image: "/feed-your-eyes-4.png",
@@ -72,6 +79,8 @@ const shots = [
     x: 25,
     y: 16,
     width: "clamp(13rem,25.5vw,23rem)",
+    imageWidth: 206,
+    imageHeight: 242,
   },
   {
     image: "/feed-your-eyes-5.png",
@@ -79,6 +88,8 @@ const shots = [
     x: 43,
     y: 76,
     width: "clamp(9rem,15.5vw,14rem)",
+    imageWidth: 126,
+    imageHeight: 249,
   },
 ] as const;
 
@@ -203,10 +214,12 @@ export function MediaHub({
         >
           <div className="relative h-[10rem] w-full md:hidden">
             <div className="absolute top-1/2 left-1/2 h-[4.25rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[0.8rem]">
-              <img
+              <Image
                 src="/feed-your-eyes-2.png"
                 alt="A young player reaching forward with a tennis racket"
-                className="absolute top-1/2 left-1/2 h-[165%] w-[165%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+                fill
+                sizes="10rem"
+                className="object-cover"
               />
             </div>
           </div>
@@ -220,10 +233,12 @@ export function MediaHub({
               className="absolute top-1/2 left-1/2 h-[4.25rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[0.8rem]"
               style={{ opacity: compactOpacity, scale: compactScale }}
             >
-              <img
+              <Image
                 src="/feed-your-eyes-2.png"
                 alt=""
-                className="absolute top-1/2 left-1/2 h-[165%] w-[165%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+                fill
+                sizes="10rem"
+                className="object-cover"
               />
             </motion.div>
             {shots.map((shot) => (
@@ -508,15 +523,15 @@ function GalleryPhoto({ photo }: { photo: PhotoFeedItem }) {
           Photo unavailable
         </div>
       ) : (
-        <img
+        <Image
           src={photo.image}
           alt={photo.title}
-          loading="lazy"
-          decoding="async"
+          fill
+          sizes="(max-width: 639px) 50vw, 25vw"
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
           className={cn(
-            "h-full w-full object-cover transition-opacity duration-300",
+            "object-cover transition-opacity duration-300",
             loaded ? "opacity-100" : "opacity-0",
           )}
         />
@@ -566,11 +581,15 @@ function GalleryPane({
             className="rounded-[1.25rem] bg-blue-tint p-4"
           >
             <Link href={story.href} className="group block">
-              <img
-                src={story.image}
-                alt=""
-                className="aspect-[16/10] w-full rounded-[1rem] object-cover transition group-hover:scale-[1.01]"
-              />
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[1rem]">
+                <Image
+                  src={story.image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                  className="object-cover transition group-hover:scale-[1.01]"
+                />
+              </div>
               <h2 className="mt-4 text-sm leading-snug font-bold tracking-wide text-blue uppercase">
                 {story.title}
               </h2>
@@ -635,11 +654,15 @@ function GalleryPane({
           className="rounded-[1.25rem] bg-[#f7f6dc] p-3"
         >
           <Link href={story.href} className="group block">
-            <img
-              src={story.image}
-              alt=""
-              className="aspect-[4/3] w-full rounded-[1rem] object-cover transition-transform duration-300 group-hover:scale-[1.01]"
-            />
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1rem]">
+              <Image
+                src={story.image}
+                alt=""
+                fill
+                sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+              />
+            </div>
             <h2 className="mt-4 px-2 text-sm leading-snug font-bold tracking-wide text-blue uppercase">
               {story.title}
             </h2>
@@ -755,11 +778,15 @@ function VideoGalleryGrid({ stories }: { stories: readonly MediaStory[] }) {
                   </div>
                 ) : (
                   <>
-                    <img
-                      src={video.image}
-                      alt=""
-                      className="aspect-video w-full object-cover"
-                    />
+                    <div className="relative aspect-video w-full">
+                      <Image
+                        src={video.image}
+                        alt=""
+                        fill
+                        sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => setPlayingKey(key)}
@@ -913,7 +940,14 @@ function CollageShot({
         willChange: "transform, opacity",
       }}
     >
-      <img src={shot.image} alt={shot.alt} className="block h-auto w-full" />
+      <Image
+        src={shot.image}
+        alt={shot.alt}
+        width={shot.imageWidth}
+        height={shot.imageHeight}
+        sizes={shot.width}
+        className="block h-auto w-full"
+      />
     </motion.div>
   );
 }

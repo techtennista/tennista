@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "@/components/ui/icons";
+import Image from "next/image";
 import { fallbackCourts, type TennisCourt } from "@/lib/tennis-courts";
 
 function LocationPin() {
@@ -155,11 +156,15 @@ export function FindTennisCourts() {
               className="rounded-[1.15rem] bg-lime-tint p-3 sm:p-4"
             >
               {court.imageUrl ? (
-                <img
-                  src={court.imageUrl}
-                  alt={`${court.name} tennis facilities`}
-                  className="aspect-[627/648] w-full rounded-[0.9rem] object-cover"
-                />
+                <div className="relative aspect-[627/648] w-full overflow-hidden rounded-[0.9rem]">
+                  <Image
+                    src={court.imageUrl}
+                    alt={`${court.name} tennis facilities`}
+                    fill
+                    sizes="(max-width: 767px) calc(100vw - 3rem), (max-width: 1023px) calc(50vw - 2rem), 33vw"
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="grid aspect-[627/648] w-full place-items-center rounded-[0.9rem] bg-blue-tint px-8 text-center text-sm font-medium text-blue">
                   Court image coming soon

@@ -1,22 +1,33 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Donation",
-  description: "Support Tennista Foundation and help young people thrive through tennis, education, and life skills.",
+  description:
+    "Support Tennista Foundation and help young people thrive through tennis, education, and life skills.",
   alternates: { canonical: "/fund-a-child" },
 };
 
 export default function DonationPage() {
   return (
-    <section aria-labelledby="donation-heading" className="overflow-hidden bg-[#f3f7fb] pb-16 sm:pb-20">
+    <section
+      aria-labelledby="donation-heading"
+      className="overflow-hidden bg-[#f3f7fb] pb-16 sm:pb-20"
+    >
       <div className="relative h-48 overflow-hidden sm:h-auto">
-        <img
+        <Image
           src="/donation-banner.jpg"
           alt="Donation. A tennis racket, ball, and wrapped gift on a blue background."
+          width={2160}
+          height={651}
+          sizes="(max-width: 639px) 100vw, 100vw"
           className="block h-full w-full object-cover object-[18%_center] sm:h-auto sm:object-contain sm:-mb-[5%]"
         />
       </div>
-      <h1 id="donation-heading" className="headline px-4 pt-6 text-display-lg text-blue sm:sr-only">
+      <h1
+        id="donation-heading"
+        className="headline px-4 pt-6 text-display-lg text-blue sm:sr-only"
+      >
         Donation
       </h1>
       <div

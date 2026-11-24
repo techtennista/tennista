@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,8 @@ type Goal = {
   body: string;
   icon: string;
   iconAlt: string;
+  width: number;
+  height: number;
 };
 
 const goals: Goal[] = [
@@ -21,6 +24,8 @@ const goals: Goal[] = [
     icon: "/sdg-no-poverty.png",
     body: "Our objective is to use the platform of tennis to develop talents. Although tennis is perceived to be a sport of privilege and wealth, we want to change this narrative and encourage young people to aspire for wealth creation by offering a unique sport-based training programme for character development and financial literacy.",
     iconAlt: "UN Sustainable Development Goal 1: No Poverty",
+    width: 486,
+    height: 231,
   },
   {
     id: 4,
@@ -29,6 +34,8 @@ const goals: Goal[] = [
     icon: "/sdg-quality-education.png",
     body: "Our plan is to use the platform of Tennis to support academic excellence by rewarding high-flying students with academic scholarships and providing academic support materials such as textbooks and notebooks.",
     iconAlt: "UN Sustainable Development Goal 4: Quality Education",
+    width: 394,
+    height: 321,
   },
   {
     id: 5,
@@ -37,6 +44,8 @@ const goals: Goal[] = [
     icon: "/sdg-gender-equality.png",
     body: "Our aim is to drive gender equality; we are encouraging more girls to participate in our Tennis training programme by providing equal opportunities for both boys and girls. We want to see more young girls playing Tennis in Africa.",
     iconAlt: "UN Sustainable Development Goal 5: Gender Equality",
+    width: 308,
+    height: 403,
   },
   {
     id: 8,
@@ -46,6 +55,8 @@ const goals: Goal[] = [
     body: "The work reaches past the court. Coaching, mentoring and programme roles create decent jobs, and the skills young people build here travel with them into the wider economy.",
     iconAlt:
       "UN Sustainable Development Goal 8: Decent Work and Economic Growth",
+    width: 369,
+    height: 339,
   },
 ];
 
@@ -126,9 +137,12 @@ export function SdgGoals({ ids }: { ids?: number[] } = {}) {
                   : "flex-1 items-center justify-center py-4",
               )}
             >
-              <img
+              <Image
                 src={goal.icon}
                 alt={goal.iconAlt}
+                width={goal.width}
+                height={goal.height}
+                sizes="176px"
                 className="h-[5.25rem] w-auto max-w-[11rem] object-contain object-left"
               />
             </span>

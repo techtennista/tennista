@@ -56,11 +56,20 @@ export function Hero() {
                 key={lineIndex}
                 initial={{ opacity: 0, y: "0.35em" }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: ease.out, delay: 0.12 * lineIndex }}
+                transition={{
+                  duration: 0.7,
+                  ease: ease.out,
+                  delay: 0.12 * lineIndex,
+                }}
                 className={lineIndex === 0 ? "block" : "block mt-[0.18em]"}
               >
                 {line.map((word, wordIndex) => (
-                  <span key={word.text} className={word.tone === "lime" ? "text-lime" : "text-white"}>
+                  <span
+                    key={word.text}
+                    className={
+                      word.tone === "lime" ? "text-lime" : "text-white"
+                    }
+                  >
                     {wordIndex > 0 ? " " : ""}
                     {word.text}
                   </span>
@@ -75,9 +84,10 @@ export function Hero() {
             transition={{ duration: 0.7, ease: ease.out, delay: 0.4 }}
             className="mx-auto mt-7 max-w-xl text-body text-white/85"
           >
-            Every champion starts somewhere with a chance. At Tennista Foundation, we use tennis, education,
-            and life skills to unlock potential in young people and turn it into confidence, direction, and
-            possibility.
+            Every champion starts somewhere with a chance. At Tennista
+            Foundation, we use tennis, education, and life skills to unlock
+            potential in young people and turn it into confidence, direction,
+            and possibility.
           </motion.p>
 
           <motion.div
@@ -96,10 +106,13 @@ export function Hero() {
         </div>
       </Container>
 
-      <img
+      <Image
         src="/tennis-balls.svg"
         alt=""
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 w-full"
+        width={1440}
+        height={100}
+        sizes="100vw"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-auto w-full"
       />
       {/* White space traces the ball's curve and clips the players to the same arc. */}
       <svg
