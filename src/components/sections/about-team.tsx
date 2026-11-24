@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 /**
  * The group photograph carries its own top notch. A white wave closes the
@@ -6,16 +7,24 @@ import { Button } from "@/components/ui/button";
  */
 export function AboutTeam() {
   return (
-    <section aria-labelledby="team-heading" className="overflow-hidden bg-white pt-16 pb-4 sm:pt-20">
+    <section
+      aria-labelledby="team-heading"
+      className="overflow-hidden bg-white pt-16 pb-4 sm:pt-20"
+    >
       <div className="relative z-10 grid items-start gap-8 px-4 pb-2 sm:px-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] lg:gap-16 lg:px-12">
-        <h2 id="team-heading" className="headline text-display-xl text-blue sm:text-display-2xl">
+        <h2
+          id="team-heading"
+          className="headline text-display-xl text-blue sm:text-display-2xl"
+        >
           The team
         </h2>
         <div className="max-w-xl lg:justify-self-end lg:pb-2">
           <p className="text-[0.975rem] leading-relaxed text-ink-muted">
-            Our team is made up of coaches, educators, and program leaders who believe tennis can change
-            lives, because we&apos;ve seen it happen. Their dedication, creativity, and commitment push us to
-            reach further, dream bigger, and create lasting change for the youth we SERVE.
+            Our team is made up of coaches, educators, and program leaders who
+            believe tennis can change lives, because we&apos;ve seen it happen.
+            Their dedication, creativity, and commitment push us to reach
+            further, dream bigger, and create lasting change for the youth we
+            SERVE.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button href="/our-team">Meet The Team</Button>
@@ -27,9 +36,12 @@ export function AboutTeam() {
       </div>
 
       <div className="relative mt-8 lg:-mt-14">
-        <img
+        <Image
           src="/the-team.jpg"
           alt="The Tennista team standing together at a junior tennis event"
+          width={1401}
+          height={559}
+          sizes="100vw"
           className="h-auto w-full"
         />
         <svg

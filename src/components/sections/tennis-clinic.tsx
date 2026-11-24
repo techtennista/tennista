@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import Image from "next/image";
 const physicalSkills = [
   {
     title: "Footwork",
@@ -91,24 +92,36 @@ export function TennisClinic() {
         />
 
         <div className="relative mt-20 overflow-hidden rounded-[1.5rem] bg-blue-tint px-8 py-16 sm:px-16 sm:py-20">
-          <img
+          <Image
             src="/tennis-ball.png"
             alt=""
+            width={323}
+            height={201}
+            sizes="(max-width: 639px) 8rem, 11rem"
             className="pointer-events-none absolute -top-8 -left-8 w-32 sm:w-44"
           />
-          <img
+          <Image
             src="/wristband.png"
             alt=""
+            width={328}
+            height={170}
+            sizes="(max-width: 639px) 9rem, 12rem"
             className="pointer-events-none absolute -top-6 -right-8 w-36 sm:w-48"
           />
-          <img
+          <Image
             src="/racket-bag.png"
             alt=""
+            width={389}
+            height={227}
+            sizes="(max-width: 639px) 10rem, 13rem"
             className="pointer-events-none absolute -bottom-8 -left-8 w-40 sm:w-52"
           />
-          <img
+          <Image
             src="/racket.png"
             alt=""
+            width={360}
+            height={190}
+            sizes="(max-width: 639px) 9rem, 12rem"
             className="pointer-events-none absolute -right-6 -bottom-8 w-36 sm:w-48"
           />
           <p className="relative z-10 mx-auto max-w-xl text-center text-[1.02rem] leading-relaxed font-medium text-blue">
@@ -162,9 +175,12 @@ function SkillStack({
             <h3 className="text-sm font-bold tracking-wide text-blue uppercase">
               {skill.title}
             </h3>
-            <img
+            <Image
               src={skill.image}
               alt={skill.alt}
+              width={900}
+              height={516}
+              sizes="(max-width: 1023px) calc(100vw - 3rem), 55vw"
               className="mt-3 h-auto w-full rounded-[1rem]"
             />
           </article>
