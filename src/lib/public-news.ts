@@ -12,12 +12,14 @@ type PostRow = {
   body: unknown;
   published_at: Date;
   hero_object_key: string | null;
+  hero_alt_text: string | null;
 };
 
 export const getPublishedNewsPosts = cache(async (): Promise<NewsPost[]> => {
   const result = await db.query<PostRow>(
     `
-      SELECT p.slug, p.title, p.body, p.published_at, a.object_key AS hero_object_key
+      SELECT p.slug, p.title, p.body, p.published_at, a.object_key AS hero_object_key,
+        a.alt_text AS hero_alt_text
       FROM cms_posts p
       LEFT JOIN cms_assets a ON a.id = p.hero_asset_id
       WHERE p.status = 'published' AND p.published_at <= NOW()
@@ -52,7 +54,12 @@ export const getPublishedNewsPosts = cache(async (): Promise<NewsPost[]> => {
       slug: row.slug,
       title: row.title,
       date: new Intl.DateTimeFormat("en-GB", { dateStyle: "long" }).format(row.published_at),
+      publishedAt: row.published_at.toISOString(),
       hero,
+      heroAlt:
+        row.slug === "55-kids-serve-off-maiden-tennista-junior-tennis-open"
+          ? "Junior players at the first Tennista Junior Tennis Open"
+          : row.hero_alt_text?.trim() || row.title,
       cardImage: hero,
       content: documents[index],
       assetUrls,

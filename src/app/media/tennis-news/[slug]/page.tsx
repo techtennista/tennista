@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NewsArticle } from "@/components/sections/news-article";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getPublishedNewsPosts } from "@/lib/public-news";
+import { breadcrumbSchema, newsArticleSchema } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: post.title,
     description: post.title,
     alternates: { canonical: `/media/tennis-news/${post.slug}` },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      url: `/media/tennis-news/${post.slug}`,
+      images: [{ url: post.hero, alt: post.heroAlt ?? post.title }],
+      ...(post.publishedAt ? { publishedTime: post.publishedAt } : {}),
+    },
   };
 }
 
@@ -30,5 +39,20 @@ export default async function NewsPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  return <NewsArticle post={post} posts={posts} />;
+  return (
+    <>
+      <JsonLd
+        schema={[
+          newsArticleSchema(post),
+          breadcrumbSchema([
+            { name: "Home", href: "/" },
+            { name: "Media and Events", href: "/media" },
+            { name: "Tennis News", href: "/media/tennis-news" },
+            { name: post.title, href: `/media/tennis-news/${post.slug}` },
+          ]),
+        ]}
+      />
+      <NewsArticle post={post} posts={posts} />
+    </>
+  );
 }

@@ -77,7 +77,7 @@ function LogoSlot({ name, src, href }: Logo) {
       alt={name}
       width={400}
       height={200}
-      unoptimized
+      sizes="(max-width: 639px) 40vw, 14rem"
       className="h-auto max-h-20 w-auto max-w-full object-contain transition-transform duration-500 ease-[var(--ease-out-expo)] hover:scale-105 sm:max-h-24 lg:max-h-28"
     />
   );

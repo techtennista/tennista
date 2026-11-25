@@ -44,6 +44,39 @@ export function websiteSchema() {
   };
 }
 
+function absoluteUrl(pathOrUrl: string) {
+  return /^https?:\/\//.test(pathOrUrl) ? pathOrUrl : `${siteConfig.url}${pathOrUrl}`;
+}
+
+export function newsArticleSchema(post: {
+  slug: string;
+  title: string;
+  hero: string;
+  publishedAt?: string;
+  description?: string;
+}) {
+  const url = `${siteConfig.url}/media/tennis-news/${post.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "@id": `${url}#article`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+    headline: post.title.slice(0, 110),
+    description: post.description ?? post.title,
+    image: [absoluteUrl(post.hero)],
+    ...(post.publishedAt ? { datePublished: post.publishedAt, dateModified: post.publishedAt } : {}),
+    author: { "@type": "Organization", name: siteConfig.name, url: siteConfig.url },
+    publisher: {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
+      name: siteConfig.name,
+      logo: { "@type": "ImageObject", url: `${siteConfig.url}/tennista-logo.png` },
+    },
+    inLanguage: "en-US",
+  };
+}
+
 type BreadcrumbEntry = { name: string; href: string };
 
 export function breadcrumbSchema(entries: BreadcrumbEntry[]) {

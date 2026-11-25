@@ -10,7 +10,14 @@ export const dynamic = "force-dynamic";
  * in the sitemap automatically.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const routes = new Set<string>(["/", primaryCta.href, "/contact"]);
+  const routes = new Set<string>([
+    "/",
+    primaryCta.href,
+    "/contact",
+    "/get-involved/partner",
+    "/get-involved/sponsor-a-student",
+    "/get-involved/volunteer",
+  ]);
 
   for (const item of mainNav) {
     routes.add(item.href);

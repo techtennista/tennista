@@ -57,8 +57,8 @@ export function MeansSection() {
           alt="A smiling child"
           width={643}
           height={725}
-          quality={100}
-          unoptimized
+          quality={90}
+          sizes="(max-width: 639px) 22rem, (max-width: 767px) 28rem, 40rem"
           className="absolute top-[-12%] left-[8%] z-10 h-[118%] w-auto max-w-none"
         />
       </div>

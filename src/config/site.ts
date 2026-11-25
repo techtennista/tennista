@@ -5,8 +5,8 @@
 export const siteConfig = {
   name: "Tennista Foundation",
   shortName: "Tennista",
-  // TODO: point at the production domain before launch.
-  url: "https://tennistafoundation.org",
+  // Must match the host the site is served on; non-www 308s to www.
+  url: (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.tennistafoundation.org").replace(/\/$/, ""),
   tagline: "Every serve starts a story",
   description:
     "Tennista Foundation is a 501(c)(3) non-profit using tennis, education and life skills to unlock the potential of young people and turn it into confidence, direction and possibility.",

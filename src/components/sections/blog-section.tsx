@@ -125,7 +125,7 @@ export function BlogSection() {
                 <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.15rem]">
                   <Image
                     src={post.image}
-                    alt=""
+                    alt={post.title}
                     fill
                     sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-[1.01]"

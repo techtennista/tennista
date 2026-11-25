@@ -30,6 +30,7 @@ export const newsPosts = [
     date: "April 21, 2026",
     hero: "/junior-tennis-open-cover.jpg",
     cardImage: "/junior-tennis-open-cover.jpg",
+    heroAlt: "Junior players at the first Tennista Junior Tennis Open",
   },
 ] as const;
 
@@ -37,7 +38,10 @@ export type NewsPost = {
   slug: string;
   title: string;
   date: string;
+  /** ISO timestamp for structured data. */
+  publishedAt?: string;
   hero: string;
+  heroAlt?: string;
   cardImage: string;
   content?: ArticleDocument;
   assetUrls?: Record<string, string>;
@@ -113,7 +117,7 @@ function PostNavigation({
             <div className="relative aspect-[4/3] w-full">
               <Image
                 src={previous.cardImage}
-                alt=""
+                alt={previous.title}
                 fill
                 sizes="(max-width: 1023px) 50vw, 25vw"
                 className="rounded-[0.85rem] object-cover"
@@ -140,7 +144,7 @@ function PostNavigation({
             <div className="relative aspect-[4/3] w-full">
               <Image
                 src={next.cardImage}
-                alt=""
+                alt={next.title}
                 fill
                 sizes="(max-width: 1023px) 50vw, 25vw"
                 className="rounded-[0.85rem] object-cover"
@@ -274,7 +278,7 @@ function ShortArticle({ post }: { post: NewsPost }) {
       <div className="relative mt-8 aspect-[16/9] w-full">
         <Image
           src={post.cardImage}
-          alt=""
+          alt={post.heroAlt ?? post.title}
           fill
           sizes="(max-width: 1023px) 100vw, 60vw"
           className="rounded-[1rem] object-cover"
@@ -348,7 +352,7 @@ export function NewsArticle({
           <div className="relative h-[20rem] w-full sm:h-[28rem] lg:h-[36rem]">
             <Image
               src={post.hero}
-              alt=""
+              alt={post.heroAlt ?? post.title}
               fill
               priority
               sizes="100vw"

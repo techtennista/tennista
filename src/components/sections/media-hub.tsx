@@ -319,7 +319,12 @@ export function MediaHub({
             initialFeed={photoFeed}
           />
         ) : (
-          <GalleryPane key={`${tab}:${term}`} tab={tab} stories={stories} />
+          <GalleryPane
+            key={`${tab}:${term}`}
+            tab={tab}
+            stories={stories}
+            instant={tab === initialTab && !term}
+          />
         )}
       </section>
     </>
@@ -543,17 +548,21 @@ function GalleryPhoto({ photo }: { photo: PhotoFeedItem }) {
 function GalleryPane({
   tab,
   stories,
+  instant = false,
 }: {
   tab: TabId;
   stories: readonly MediaStory[];
+  /** Render content on first paint so crawlers get real links, not a skeleton. */
+  instant?: boolean;
 }) {
   const reduced = useReducedMotion();
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(instant);
 
   useEffect(() => {
+    if (ready) return;
     const timer = window.setTimeout(() => setReady(true), reduced ? 0 : 700);
     return () => window.clearTimeout(timer);
-  }, [reduced]);
+  }, [ready, reduced]);
 
   if (!ready) return <GalleryLoader tab={tab} />;
 
