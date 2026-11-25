@@ -1,4 +1,5 @@
 import { Container } from "@/components/ui/container";
+import Image from "next/image";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/reveal";
 
 const brands = [
@@ -71,11 +72,12 @@ type Logo = { name: string; src: string; href?: string };
 
 function LogoSlot({ name, src, href }: Logo) {
   const mark = (
-    <img
+    <Image
       src={src}
       alt={name}
-      loading="lazy"
-      decoding="async"
+      width={400}
+      height={200}
+      unoptimized
       className="h-auto max-h-20 w-auto max-w-full object-contain transition-transform duration-500 ease-[var(--ease-out-expo)] hover:scale-105 sm:max-h-24 lg:max-h-28"
     />
   );

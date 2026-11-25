@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 type Person = {
   name: string;
@@ -84,10 +85,12 @@ function PersonCard({
           <>
             <span className="relative block min-h-64 flex-1 bg-blue-tint">
               {person.image ? (
-                <img
+                <Image
                   src={person.image}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover object-[center_12%]"
+                  fill
+                  sizes="(max-width: 639px) min(100vw, 22rem), (max-width: 1023px) calc((100vw - 5rem) / 3), 22rem"
+                  className="object-cover object-[center_12%]"
                 />
               ) : (
                 <MediaPlaceholder

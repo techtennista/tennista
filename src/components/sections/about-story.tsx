@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const chapters = [
   {
@@ -53,18 +54,24 @@ export function AboutStory() {
                 className={cn(
                   "grid items-center gap-6",
                   chapter.image && "lg:grid-cols-2 lg:gap-12",
-                  chapter.image && chapter.imageFirst && "lg:[&>*:first-child]:order-2",
+                  chapter.image &&
+                    chapter.imageFirst &&
+                    "lg:[&>*:first-child]:order-2",
                 )}
               >
                 <p className="max-w-xl px-2 text-[1.05rem] leading-relaxed font-medium text-blue sm:px-4 sm:text-lg">
                   {chapter.body}
                 </p>
                 {chapter.image ? (
-                  <img
-                    src={chapter.image}
-                    alt={chapter.alt}
-                    className="aspect-[4/3] w-full rounded-[1.15rem] object-cover"
-                  />
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.15rem]">
+                    <Image
+                      src={chapter.image}
+                      alt={chapter.alt}
+                      fill
+                      sizes="(max-width: 1023px) calc(100vw - 4rem), (max-width: 1279px) 45vw, 42vw"
+                      className="object-cover"
+                    />
+                  </div>
                 ) : null}
               </div>
             </article>

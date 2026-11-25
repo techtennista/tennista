@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site";
 import { Facebook, Instagram, LinkedIn } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import Image from "next/image";
 
 const fieldBase =
   "w-full bg-blue-tint px-8 py-[1.15rem] text-[0.95rem] text-gray outline-none placeholder:text-gray focus:ring-2 focus:ring-blue-bright";
@@ -22,15 +23,21 @@ export function ContactUs() {
   const [error, setError] = useState("");
 
   return (
-    <section aria-labelledby="contact-heading" className="bg-white pt-12 pb-20 sm:pt-4 sm:pb-24">
+    <section
+      aria-labelledby="contact-heading"
+      className="bg-white pt-12 pb-20 sm:pt-4 sm:pb-24"
+    >
       <h1 id="contact-heading" className="sr-only">
         Contact Us
       </h1>
 
       <div className="mx-auto w-full max-w-[131.25rem] px-4 sm:px-5">
-        <img
+        <Image
           src="/contact-us-header.jpg"
           alt="Contact Tennista Foundation. A young player tosses a tennis ball before serving."
+          width={2100}
+          height={978}
+          sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1280px) calc(100vw - 2.5rem), 131.25rem"
           className="h-auto w-full rounded-b-[1.25rem]"
         />
       </div>
@@ -59,19 +66,36 @@ export function ContactUs() {
                 }),
               });
               const result = (await response.json()) as { message?: string };
-              if (!response.ok) throw new Error(result.message ?? "Please try again.");
+              if (!response.ok)
+                throw new Error(result.message ?? "Please try again.");
               form.reset();
               setSent(true);
             } catch (submissionError) {
-              setError(submissionError instanceof Error ? submissionError.message : "Please try again.");
+              setError(
+                submissionError instanceof Error
+                  ? submissionError.message
+                  : "Please try again.",
+              );
             } finally {
               setSubmitting(false);
             }
           }}
         >
           <div className="space-y-4">
-            <input name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-            <input className={fieldClass} name="name" placeholder="Full Name" aria-label="Full Name" required />
+            <input
+              name="company"
+              tabIndex={-1}
+              autoComplete="off"
+              className="hidden"
+              aria-hidden="true"
+            />
+            <input
+              className={fieldClass}
+              name="name"
+              placeholder="Full Name"
+              aria-label="Full Name"
+              required
+            />
             <input
               className={fieldClass}
               name="email"
@@ -80,7 +104,13 @@ export function ContactUs() {
               aria-label="Email"
               required
             />
-            <input className={fieldClass} name="subject" placeholder="Subject" aria-label="Subject" required />
+            <input
+              className={fieldClass}
+              name="subject"
+              placeholder="Subject"
+              aria-label="Subject"
+              required
+            />
             <textarea
               className={`${fieldBase} min-h-[10.25rem] resize-y rounded-[1rem]`}
               name="message"
@@ -91,10 +121,16 @@ export function ContactUs() {
           </div>
 
           <div className="mt-7 text-center">
-            <Button type="submit" disabled={submitting}>{submitting ? "Submitting…" : "Submit"}</Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Submitting…" : "Submit"}
+            </Button>
           </div>
-          <p className="mt-4 min-h-6 text-center text-sm font-medium text-blue" aria-live="polite">
-            {error || (sent ? "Thank you. Your message has been received." : "")}
+          <p
+            className="mt-4 min-h-6 text-center text-sm font-medium text-blue"
+            aria-live="polite"
+          >
+            {error ||
+              (sent ? "Thank you. Your message has been received." : "")}
           </p>
         </form>
 
@@ -111,7 +147,9 @@ export function ContactUs() {
           </div>
 
           <div className="sm:min-w-[12rem]">
-            <h2 className="headline text-[1.45rem] leading-none text-blue">Contact Us</h2>
+            <h2 className="headline text-[1.45rem] leading-none text-blue">
+              Contact Us
+            </h2>
             <a
               href={`mailto:${siteConfig.email}`}
               className="mt-4 block text-[0.95rem] text-gray transition-colors hover:text-blue-bright"

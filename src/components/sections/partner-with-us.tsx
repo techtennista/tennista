@@ -1,9 +1,13 @@
 import { InquiryForm } from "@/components/sections/inquiry-form";
 import { Container } from "@/components/ui/container";
+import Image from "next/image";
 
 export function PartnerWithUs() {
   return (
-    <section aria-labelledby="partner-heading" className="bg-white pt-14 pb-24 sm:pt-20 sm:pb-28">
+    <section
+      aria-labelledby="partner-heading"
+      className="bg-white pt-14 pb-24 sm:pt-20 sm:pb-28"
+    >
       <Container>
         <h1
           id="partner-heading"
@@ -18,21 +22,27 @@ export function PartnerWithUs() {
               <div>
                 <p className="text-sm text-gray">An African proverb says</p>
                 <p className="mt-4 font-display text-[clamp(1.85rem,3vw,2.75rem)] leading-[0.95] font-extrabold tracking-[-0.01em] text-blue">
-                  “If you want to go fast, go alone, If you want to go far, go together.”
+                  “If you want to go fast, go alone, If you want to go far, go
+                  together.”
                 </p>
                 <p className="mt-6 max-w-[28rem] text-[1.02rem] leading-relaxed text-gray">
-                  At Tennista foundation, we share this philosophy of going farther, together with the support of
-                  others.
+                  At Tennista foundation, we share this philosophy of going
+                  farther, together with the support of others.
                 </p>
                 <p className="mt-5 max-w-[32rem] text-[1.02rem] leading-relaxed text-gray">
-                  We are open to partnerships and sponsorship opportunities from individuals or organization who see
-                  value in what we do and are willing to support us. Our desire is to create a mutually beneficial
-                  relationship with all our partners, sponsors or donors.
+                  We are open to partnerships and sponsorship opportunities from
+                  individuals or organization who see value in what we do and
+                  are willing to support us. Our desire is to create a mutually
+                  beneficial relationship with all our partners, sponsors or
+                  donors.
                 </p>
               </div>
-              <img
+              <Image
                 src="/partner-with-us.jpg"
                 alt="A young player leaning into a forehand as the ball comes off the racket"
+                width={831}
+                height={602}
+                sizes="(max-width: 1023px) calc(100vw - 3rem), 45vw"
                 className="aspect-[831/602] w-full rounded-[1.25rem] object-cover"
               />
             </div>

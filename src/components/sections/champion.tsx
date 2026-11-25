@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
@@ -29,17 +30,22 @@ export function ChampionPhoto({ image, cutout, alt }: ChampionPhotoProps) {
         className="absolute inset-y-0 right-0 hidden w-[55%] overflow-hidden rounded-r-[1.25rem] lg:block"
         style={{ clipPath: "ellipse(80% 142% at 100% 52%)" }}
       >
-        <img
+        <Image
           src={image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-[center_22%]"
+          fill
+          sizes="(min-width: 1024px) 55vw, 100vw"
+          className="object-cover object-[center_22%]"
         />
       </div>
+
       <div className="pointer-events-none absolute -top-[22%] right-0 hidden h-[122%] w-[55%] overflow-hidden lg:block">
-        <img
+        <Image
           src={cutout}
           alt={alt}
-          className="absolute top-0 left-0 h-full w-full origin-top translate-x-[4%] scale-[1.28] object-cover object-[center_18%] grayscale"
+          fill
+          sizes="(min-width: 1024px) 55vw, 100vw"
+          className="origin-top translate-x-[4%] scale-[1.28] object-cover object-[center_18%] grayscale"
         />
       </div>
     </>
@@ -68,14 +74,21 @@ export function Champion({
   const framed = Boolean(image && cutout);
 
   return (
-    <section aria-labelledby={id} className="overflow-visible bg-white py-8 sm:py-14 lg:pt-24">
+    <section
+      aria-labelledby={id}
+      className="overflow-visible bg-white py-8 sm:py-14 lg:pt-24"
+    >
       <Container>
         <div className="relative">
           <div className="relative overflow-hidden rounded-[1.25rem] bg-blue px-6 py-10 sm:px-10 sm:py-12 lg:min-h-[23rem] lg:px-14 lg:py-14 lg:pr-[46%]">
             <div className="relative z-10 lg:max-w-[36rem]">
-              <h2 id={id} className="headline text-display-lg leading-[0.88] text-white">
+              <h2
+                id={id}
+                className="headline text-display-lg leading-[0.88] text-white"
+              >
                 {title}
               </h2>
+
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="/get-involved/sponsor-a-student" variant="lime">
                   Sponsor A Child&apos;s Journey
@@ -85,15 +98,27 @@ export function Champion({
                 </Button>
               </div>
             </div>
-
           </div>
 
           {framed ? (
             <>
               <ChampionPhoto image={image!} cutout={cutout!} alt={photo} />
+
               <div className="relative mt-5 h-72 overflow-hidden rounded-[1.25rem] lg:hidden">
-                <img src={image!} alt="" className="absolute inset-0 h-full w-full object-cover" />
-                <img src={cutout!} alt={photo} className="absolute inset-0 h-full w-full object-cover" />
+                <Image
+                  src={image!}
+                  alt=""
+                  fill
+                  sizes="(max-width: 1023px) 100vw, 55vw"
+                  className="object-cover"
+                />
+                <Image
+                  src={cutout!}
+                  alt={photo}
+                  fill
+                  sizes="(max-width: 1023px) 100vw, 55vw"
+                  className="object-cover"
+                />
               </div>
             </>
           ) : (
@@ -101,6 +126,7 @@ export function Champion({
               <div className="mt-4 h-72 overflow-hidden rounded-[1.75rem] sm:h-80 lg:hidden">
                 <MediaPlaceholder label={photo} className="h-full w-full" />
               </div>
+
               <div
                 className="absolute inset-y-0 -right-14 left-[42%] hidden lg:block"
                 style={{

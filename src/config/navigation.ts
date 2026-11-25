@@ -170,6 +170,7 @@ export const footerNav: NavGroup[] = [
   {
     label: "Media & Events",
     links: [
+      { label: "Media and Events", href: "/media" },
       { label: "Events", href: "/events" },
       { label: "Tennis News", href: "/media/tennis-news" },
       { label: "Photo Gallery", href: "/media/photo-gallery" },
